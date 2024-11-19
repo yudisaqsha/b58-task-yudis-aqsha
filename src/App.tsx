@@ -1,5 +1,11 @@
+import { Button } from './components/Button/Button';
+
 function App() {
-  return <h1>Hello World</h1>;
+  return (
+    <div>
+      <Button label="Click me" onClick={() => {}} />
+    </div>
+  );
 }
 
 export default App;
