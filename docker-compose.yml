@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  react-app:
+    image: node:18-alpine  # Menggunakan image Node.js versi 18 (berbasis Alpine Linux)
+    container_name: react-app
+    ports:
+      - "3000:3000"  # Port yang dipetakan agar aplikasi dapat diakses di localhost:3000
+    working_dir: /app  # Direktori kerja dalam container
+    volumes:
+      - .:/app  # Volume untuk menyinkronkan kode di host dan dalam container
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # Mengaktifkan polling untuk perubahan file dalam container
+    command: sh -c "npm install && npm run dev"  # Menjalankan perintah untuk install dependensi dan menjalankan aplikasi dengan Vite
+    networks:
+      - react-network
+    stdin_open: true  # Menjaga terminal terbuka
+    tty: true  # Menjaga terminal tetap aktif
+
+networks:
+  react-network:
+    driver: bridge
+  
