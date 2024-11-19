@@ -10,7 +10,7 @@
     "lint": "eslint --fix .",
     "format": "prettier --write .",
     "prepare": "husky",
-    "test": "vitest",
+    "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage"
   },
