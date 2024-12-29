@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { SuggestedUser, getSuggested } from "./suggestedUsers";
 
-const ProfileForm = () => {
+const ShowSuggested = () => {
   const [user, setUser] = useState<SuggestedUser[] | null>(null);
 
   const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJuZXd1c2VybmFtZSIsImVtYWlsIjoibm90ZW1haWxAZ21haWwuY29tIiwiZnVsbE5hbWUiOiJGdWxsbmFtZSIsImlhdCI6MTczNTQ1Mjg0NCwiZXhwIjoxNzM1NDk2MDQ0fQ.dg8UHt8B6pQFIs8oG0OYu-app1PAdA0Xq764i5E7PQc"; // Replace with actual token
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJuZXd1c2VybmFtZSIsImVtYWlsIjoibm90ZW1haWxAZ21haWwuY29tIiwiZnVsbE5hbWUiOiJGdWxsbmFtZSIsImlhdCI6MTczNTQ1Mjg0NCwiZXhwIjoxNzM1NDk2MDQ0fQ.dg8UHt8B6pQFIs8oG0OYu-app1PAdA0Xq764i5E7PQc"; 
 
   useEffect(() => {
     const fetchSuggested = async () => {
@@ -46,4 +46,4 @@ const ProfileForm = () => {
   );
 };
 
-export default ProfileForm;
+export default ShowSuggested;
