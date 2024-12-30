@@ -29,45 +29,19 @@ export async function getAllUsers(req: Request, res: Response) {
 }
 
 export async function getSuggestedUsers(req: Request, res: Response) {
-  const { id } = (req as any).user.id;
+  const { id } = (req as any).user;
 
-  const followers = await prisma.follow.findMany({
-    where: {
-      followingId: id,
-    },
-    select: {
-      followerId: true,
-    },
-  });
-
-  const followersIds = followers.map((f) => f.followerId);
-
-  const following = await prisma.follow.findMany({
-    where: {
-      followerId: id,
-    },
-    select: {
-      followingId: true,
-    },
-  });
-
-  const followingIds = following.map((f) => f.followingId);
-
-  const suggestedUsers = await prisma.users.findMany({
+  const allUsers = await prisma.users.findMany({
     where: {
       isDeleted: 0,
       id: { not: id },
-      NOT: {
-        id: { in: followingIds },
-      },
-      OR: [{ id: { in: followersIds } }, { id: { notIn: followersIds } }],
     },
     select: {
       id: true,
       username: true,
       email: true,
-      fullName: true,
       avatar: true,
+      fullName: true,
       _count: {
         select: {
           followers: true,
@@ -77,14 +51,22 @@ export async function getSuggestedUsers(req: Request, res: Response) {
     },
   });
 
-  const sortedUsers = suggestedUsers.sort((a, b) => {
-    if (followersIds.includes(a.id) && !followersIds.includes(b.id)) return -1;
-    if (!followersIds.includes(a.id) && followersIds.includes(b.id)) return 1;
-
-    return b._count.followers - a._count.followers;
+  const currentUserFollowers = await prisma.follow.findMany({
+    where: { followingId: id },
+    select: { followerId: true },
   });
 
-  res.json({ message: "get suggested users successful", users: sortedUsers });
+  const currentUserFollowerIds = currentUserFollowers.map((f) => f.followerId);
+
+  const usersNotFollowingBack = allUsers.filter(
+    (user) => !currentUserFollowerIds.includes(user.id)
+  );
+
+  const sortedUsers = usersNotFollowingBack.sort(
+    (a, b) => b._count.followers - a._count.followers
+  );
+
+  res.json({ message: "get all users successful", users: sortedUsers });
 }
 
 export async function getUserByUsername(req: Request, res: Response) {
@@ -263,8 +245,8 @@ export async function toggleFollow(req: Request, res: Response) {
 
     const existingFollow = await prisma.follow.findFirst({
       where: {
-        followerId: currentUserId,
-        followingId: Number(userId),
+        followerId: Number(userId),
+        followingId: currentUserId,
       },
     });
 
@@ -279,8 +261,8 @@ export async function toggleFollow(req: Request, res: Response) {
     } else {
       const newFollow = await prisma.follow.create({
         data: {
-          followerId: currentUserId,
-          followingId: Number(userId),
+          followerId: Number(userId),
+          followingId: currentUserId,
         },
       });
 
@@ -294,6 +276,7 @@ export async function toggleFollow(req: Request, res: Response) {
     res.status(500).json({ message: "Error toggling follow", error });
   }
 }
+
 export async function getCurrentUser(req: Request, res: Response) {
   const id = (req as any).user.id;
   try {
