@@ -31,16 +31,44 @@ export async function getAllUsers(req: Request, res: Response) {
 export async function getSuggestedUsers(req: Request, res: Response) {
   const { id } = (req as any).user;
 
+  const currentUser = await prisma.users.findUnique({
+    where: { id },
+    select: {
+      followers: {
+        select: {
+          id: true,
+        },
+      },
+      following: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  if (!currentUser) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const followersIds = currentUser.followers.map((follower) => follower.id);
+  const followingIds = currentUser.following.map((following) => following.id);
+
+  
   const allUsers = await prisma.users.findMany({
     where: {
       isDeleted: 0,
-      id: { not: id },
+      id: { not: id }, 
+      NOT: {
+        id: {
+          in: followingIds, 
+        },
+      },
     },
     select: {
       id: true,
       username: true,
       email: true,
-      avatar: true,
       fullName: true,
       _count: {
         select: {
@@ -51,22 +79,18 @@ export async function getSuggestedUsers(req: Request, res: Response) {
     },
   });
 
-  const currentUserFollowers = await prisma.follow.findMany({
-    where: { followingId: id },
-    select: { followerId: true },
+ 
+  const sortedUsers = allUsers.sort((a, b) => {
+    const aIsFollowedBack = followingIds.includes(a.id);
+    const bIsFollowedBack = followingIds.includes(b.id);
+
+    if (aIsFollowedBack === bIsFollowedBack) {
+      return 0; 
+    }
+    return aIsFollowedBack ? 1 : -1;
   });
 
-  const currentUserFollowerIds = currentUserFollowers.map((f) => f.followerId);
-
-  const usersNotFollowingBack = allUsers.filter(
-    (user) => !currentUserFollowerIds.includes(user.id)
-  );
-
-  const sortedUsers = usersNotFollowingBack.sort(
-    (a, b) => b._count.followers - a._count.followers
-  );
-
-  res.json({ message: "get all users successful", users: sortedUsers });
+  res.json({ message: "Get all users successful", users: sortedUsers });
 }
 
 export async function getUserByUsername(req: Request, res: Response) {
