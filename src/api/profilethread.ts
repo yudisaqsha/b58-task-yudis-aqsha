@@ -1,25 +1,27 @@
 import axios from 'axios';
-// import { Thread } from './fetchallthread';
-export interface Author {
-  id:number
-  username: string;
-  fullName: string;
-}
+import { Thread } from './fetchallthread';
+// export interface Author {
+//   id:number
+//   username: string;
+//   fullName: string;
+//   avatar:string
+// }
 
-export interface Thread {
-  id:number
-  content: string;
-  author: Author;
-  _count: {
-    likes: number;
-    comments: number;
-  };
-  liked: boolean;
-}
+// export interface Thread {
+//   id:number
+//   content: string;
+//   author: Author;
+//   image:string
+//   _count: {
+//     likes: number;
+//     comments: number;
+//   };
+//   liked: boolean;
+// }
 
 export const fetchProfileThreads = async (token: string, username:string): Promise<Thread[]> => {
   try {
-    const response = await axios.get(`http://localhost:5000/api/thread/${username}`, {
+    const response = await axios.get(`http://localhost:5000/api/thread/profile/${username}`, {
         headers: {
           Authorization: `Bearer ${token}`,  
         },

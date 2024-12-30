@@ -19,8 +19,8 @@ import PostList from "./postlist";
 import { FaUpload, FaImage } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { createThread } from "@/api/createthread";
 import { zodResolver } from "@hookform/resolvers/zod";
-// const images = imageContext.keys().map(imageContext);
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -32,45 +32,54 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-interface IFormInput {
-  content: string;
-  file: FileList;
-}
-const formSchema = z.object({
-  content: z
-    .string()
-    .min(1, "Content must not be empty")
-    .max(500, "Content must not exceed 500 characters"),
-  file: z
-    .any() // Accept any type of file input
-    .optional() // Make the image field optional
-    .refine((files) => {
-      // If no files are uploaded, validation passes
-      if (!files || files.length === 0) return true;
+import useAuthStore from "@/hooks/newAuthStore";
+import { useState } from "react";
 
-      // Check the file type if files are uploaded
-      const file = files[0];
-      return ["image/jpeg", "image/png"].includes(file.type);
-    }, "Only JPEG and PNG images are allowed"),
+const threadSchema = z.object({
+  content: z.string().min(1, { message: "Content is required" }),
+
+  image: z.instanceof(FileList).optional(), // Optional file input
 });
+
+type ThreadData = z.infer<typeof threadSchema>;
 function AddPost() {
+  const { token } = useAuthStore();
+  const [preview, setPreview] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<IFormInput>({
-    resolver: zodResolver(formSchema),
+  } = useForm<ThreadData>({
+    resolver: zodResolver(threadSchema),
   });
   const contentValue = watch("content", "");
-  const imageValue = watch("file");
-  const onSubmit = (data: IFormInput) => {
-    const { content, file } = data;
-    console.log("Content:", content);
-    console.log("Uploaded image:", file[0]);
-    onClose();
+  const imageValue = watch("image");
+  const onSubmit = async (data: any) => {
+    console.log(data);
+    if (!token) {
+      console.log("You're not logged in");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("content", data.content);
+
+    if (data.image[0]) {
+      formData.append("image", data.image[0]);
+      setPreview(data.image[0]);
+    }
+
+    try {
+      const response = await createThread(token, formData);
+      console.log(response.thread);
+      alert("Thread Uploaded");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
   };
-  const { open, onOpen, onClose } = useDisclosure();
+  
+
   return (
     <Stack
       ml={"20%"}
@@ -124,6 +133,7 @@ function AddPost() {
                 >
                   <form
                     onSubmit={handleSubmit(onSubmit)}
+                    encType="multipart/form-data"
                     style={{ width: "90%" }}
                   >
                     <Flex gap={5}>
@@ -148,36 +158,43 @@ function AddPost() {
                           required: "This can't be empty",
                         })}
                       />
+                      <Flex direction={"column"} gap={"2"}>
+                        <div>
+                          <label htmlFor="image" className="upload-label">
+                            <input
+                              type="file"
+                              id="image"
+                              accept="image/png, image/jpeg"
+                              style={{ display: "none" }}
+                              {...register("image")}
+                            />
+                            <FaImage size={30} color="green" />
+                          </label>
+                          {preview && (
+                            <img
+                              src={preview}
+                              alt="image preview"
+                              width={100}
+                            />
+                          )}
+                        </div>
+                      </Flex>
                     </Flex>
                     {errors.content && <p>{errors.content.message}</p>}
                   </form>
                 </Container>
               </DialogBody>
               <DialogFooter>
-                <div>
-                  <label htmlFor="file" className="upload-label">
-                    <input
-                      type="file"
-                      id="file"
-                      accept="image/png, image/jpeg"
-                      style={{ display: "none" }}
-                      {...register("file")}
-                    />
-                    <FaImage size={30} color="green" />
-                  </label>
-                  {errors.file && <p>{errors.file.message}</p>}
-                </div>
-
                 <Button
                   backgroundColor={"green"}
                   rounded={"2xl"}
                   color={"white"}
                   type="submit"
+                  mr={"10%"}
                   onClick={handleSubmit(onSubmit)}
                 >
                   Post
                 </Button>
-
                 {/* <DialogTrigger asChild>
                   <Button variant="outline">Cancel</Button>
                 </DialogTrigger> */}

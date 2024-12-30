@@ -63,7 +63,7 @@ import {
                 {" "}
                 <Link to={`/profile/${data.author.username}`} style={{ textDecoration: "none" }}>
                   <img
-                    src={data_img}
+                    src={data.author.avatar ? data.author.avatar : data_img}
                     style={{
                       borderRadius: "100%",
                       width: "40px",
@@ -89,7 +89,7 @@ import {
                     style={{ textDecoration: "none", width:"100%"}}
                   >
                     <Text color={"white"}>{data.content}</Text>
-                    {/* {data.imagedata && <img src={data.imagedata} height={"200px"}/>} */}
+                    {data.image && <img src={data.image} height={"200px"}/>}
                   </Link>
   
                   <Flex gap={3}>

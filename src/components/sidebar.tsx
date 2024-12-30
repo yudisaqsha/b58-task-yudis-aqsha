@@ -18,6 +18,7 @@ import { FaUpload, FaImage } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { currentUser } from "@/api/currentUser";
+import { createThread } from "@/api/createthread";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   DialogBody,
@@ -30,43 +31,32 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import data_img from "../assets/images.jpeg";
-interface IFormInput {
-  content: string;
-  image: FileList;
-}
+const threadSchema = z.object({
+  content: z.string().min(1, { message: "Content is required" }),
 
-const formSchema = z.object({
-  content: z
-    .string()
-    .min(1, "Content must not be empty")
-    .max(500, "Content must not exceed 500 characters"),
-  image: z
-    .any()
-    .optional()
-    .refine((files) => {
-      if (!files || files.length === 0) return true;
-      const file = files[0];
-      return ["image/jpeg", "image/png"].includes(file.type);
-    }, "Only JPEG and PNG images are allowed"),
+  image: z.instanceof(FileList).optional(), // Optional file input
 });
+
+type ThreadData = z.infer<typeof threadSchema>;
 
 function Sidebar() {
   const { token, loggedIn, setLoggedin } = useAuthStore();
   const { logout } = useAuthStore();
+  const [preview, setPreview] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<IFormInput>({
-    resolver: zodResolver(formSchema),
+  } = useForm<ThreadData>({
+    resolver: zodResolver(threadSchema),
   });
   useEffect(() => {
     const getUserData = async () => {
       if (token) {
         try {
           const loginuser = await currentUser(token);
-          setLoggedin(loginuser.user)
+          setLoggedin(loginuser);
 
           console.log(loginuser);
         } catch (err) {
@@ -80,25 +70,27 @@ function Sidebar() {
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const onSubmit = (data: IFormInput) => {
-    const { content, image } = data;
-    console.log("Content:", content);
-    console.log("Uploaded image:", image[0]);
-  };
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+  const onSubmit = async (data: any) => {
+    console.log(data);
+    if (!token) {
+      console.log("You're not logged in");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("content", data.content);
 
-    if (files && files.length > 0) {
-      const file = files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-        setValue("image", files);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
-      setValue("image", new FileList() as FileList);
+    if (data.image[0]) {
+      formData.append("image", data.image[0]);
+      setPreview(data.image);
+    }
+
+    try {
+      const response = await createThread(token, formData);
+      console.log(response.thread);
+      alert("Thread Uploaded");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating user:", error);
     }
   };
 
@@ -297,21 +289,29 @@ function Sidebar() {
                             />
                             <FaImage size={30} color="green" />
                           </label>
-                          {errors.image && <p>{errors.image.message}</p>}
+                          {preview && (
+                            <img
+                              src={preview}
+                              alt="image preview"
+                              width={100}
+                            />
+                          )}
                         </div>
-                        <Button
-                          backgroundColor={"green"}
-                          rounded={"2xl"}
-                          color={"white"}
-                          type="submit"
-                        >
-                          Post
-                        </Button>
                       </Flex>
                     </form>
                   </Container>
                 </DialogBody>
-                <DialogFooter></DialogFooter>
+                <DialogFooter>
+                  <Button
+                    backgroundColor={"green"}
+                    rounded={"2xl"}
+                    color={"white"}
+                    type="submit"
+                    onClick={handleSubmit(onSubmit)}
+                  >
+                    Post
+                  </Button>
+                </DialogFooter>
                 <DialogCloseTrigger />
               </DialogContent>
             </DialogRoot>

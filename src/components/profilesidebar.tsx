@@ -10,7 +10,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { currentUser, CurrentUser } from "@/api/currentUser";
+import { currentUser, User } from "@/api/currentUser";
 import { updateUser } from "@/api/updateuser";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,99 +32,117 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 const editUserSchema = z.object({
-  fullName: z.string().min(1, "Full Name is required"),
-  username: z.string().min(1, "Username is required"),
-  email: z.string().email("Invalid email address"),
-  bio: z
-    .string()
-    .max(1000, "Bio must be less than 1000 characters")
-    .refine((bio) => {
-      const wordCount = bio.trim().split(/\s+/).length;
-      return wordCount <= 200;
-    }, "Bio must be no more than 200 words.")
-    .optional(),
+  username: z.string().min(1, { message: "Username is required" }),
+  fullName: z.string().min(1, { message: "Full name is required" }),
+  bio: z.string().optional(),
+  avatar: z.instanceof(FileList).optional(), // Optional file input
+  coverPic: z.instanceof(FileList).optional(), // Optional file input
 });
 
-type EditUserData = {
-  fullName: string;
-  username: string;
-  email: string;
-  bio: string;
-};
+type ProfileFormData = z.infer<typeof editUserSchema>;
 
 function ProfileSidebar() {
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { token, loggedIn, setLoggedin, updateUserData } = useAuthStore();
+  // const [error, setError] = useState("");
+  // const [successMessage, setSuccessMessage] = useState("");
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [coverPicPreview, setCoverPicPreview] = useState<string | null>(null);
+  const [initialValues, setInitialValues] = useState<ProfileFormData | null>(
+    null,
+  );
+  const [user, setUser] = useState<User | null>(null);
+  const { token } = useAuthStore();
   const {
     register,
     handleSubmit,
-    formState: { errors },
     setValue,
-  } = useForm<EditUserData>({
-    resolver: zodResolver(editUserSchema),
+    formState: { errors },
+    watch,
+  } = useForm<ProfileFormData>({
+    resolver: zodResolver(editUserSchema), // Apply Zod validation schema to react-hook-form
   });
-
+  // const avatar = watch("avatar");
+  // const coverPic = watch("coverPic");
   useEffect(() => {
     const getCurrentUser = async () => {
       if (token) {
-        setLoading(true);
-        const currentUserData = await currentUser(token);
-
-        if (currentUserData) {
-          setLoggedin(currentUserData);
-          console.log(currentUserData);
-          setValue("fullName", currentUserData.fullName);
-          setValue("username", currentUserData.username);
-          setValue("email", currentUserData.email);
-          setValue("bio", currentUserData.bio)
-        } else {
-          console.error("User data not found or invalid token");
+        try {
+          const userData = await currentUser(token);
+          setUser(userData);
+          setInitialValues({
+            username: userData.username,
+            fullName: userData.fullName,
+            bio: userData.bio || "",
+          });
+          setValue("username", userData.username);
+          setValue("fullName", userData.fullName);
+          setValue("bio", userData.bio);
+          setAvatarPreview(userData.avatar);
+          setCoverPicPreview(userData.coverPic);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
         }
-        setLoading(false);
       } else {
         console.log("No token found");
       }
     };
 
     getCurrentUser();
-  }, [token, setLoggedin]);
+  }, [token, setUser]);
 
-  const onSubmit = async (data: EditUserData) => {
+  const onSubmit = async (data: any) => {
     // updateProfile(data.email, data.fullName, data.username, data.bio);
     console.log(data);
     if (!token) {
       console.log("You're not logged in");
       return;
     }
-    try {
-      setLoading(true);
-      const response = await updateUser(
-        token,
-        data.username,
-        data.fullName,
-        data.bio,
-      );
-      console.log(response);
-      if (response.user) {
-        console.log(response.user);
+    const formData = new FormData();
+    formData.append("username", data.username);
+    formData.append("fullName", data.fullName);
+    formData.append("bio", data.bio);
 
-        updateUserData(response.user);
-        setSuccessMessage("User updated successfully!");
-        alert("User Updated");
-        window.location.reload();
-      } else {
-        setError(response.message);
-      }
-    } catch (err) {
-      setError("An error occurred while updating the user.");
+    // Append files if selected
+    if (data.avatar[0]) {
+      formData.append("avatar", data.avatar[0]);
+    }
+    if (data.coverPic[0]) {
+      formData.append("coverPic", data.coverPic[0]);
+    }
+
+    try {
+      const response = await updateUser(token, formData);
+      setUser(response.user);
+      console.log("User updated successfully:", response.user);
+      alert("Data Updated!");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating user:", error);
     }
   };
-  if (loading || !loggedIn) {
-    return <Box>Loading...</Box>;
-  }
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
 
+  const handleCoverPicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setCoverPicPreview(URL.createObjectURL(file));
+    }
+  };
+  const formValues = watch();
+  const isFormChanged = () => {
+    if (!initialValues || !user) return false;
+    return (
+      formValues.username !== initialValues.username ||
+      formValues.fullName !== initialValues.fullName ||
+      formValues.bio !== initialValues.bio ||
+      avatarPreview !== user.avatar ||
+      coverPicPreview !== user.coverPic
+    );
+  };
   return (
     <Box backgroundColor="#262626" borderRadius={"2xl"}>
       <h5 style={{ color: "white", marginTop: "25px", marginLeft: "25px" }}>
@@ -137,7 +155,7 @@ function ProfileSidebar() {
           height={"100px"}
           width={"90%"}
           m={"auto"}
-          backgroundColor={"white"}
+          background={user?.coverPic ? user.coverPic : "white"}
         ></Box>
         <Box
           borderRadius={"100%"}
@@ -151,7 +169,7 @@ function ProfileSidebar() {
           position={"absolute"}
         >
           <img
-            src={data_img}
+            src={user?.avatar ? user.avatar : data_img}
             style={{
               borderRadius: "100%",
               width: "100%",
@@ -204,7 +222,7 @@ function ProfileSidebar() {
                   position={"absolute"}
                 >
                   <img
-                    src={data_img}
+                    src={user?.avatar ? user.avatar : data_img}
                     style={{
                       borderRadius: "100%",
                       width: "100%",
@@ -217,19 +235,35 @@ function ProfileSidebar() {
               <Stack mt={10}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <Flex direction={"column"} gap={5}>
+                    <Flex gap={3}>
+                      <Input
+                        type="file"
+                        {...register("avatar")}
+                        mt={4}
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                      />
+                      <Input
+                        type="file"
+                        {...register("coverPic")}
+                        mt={4}
+                        accept="image/*"
+                        onChange={handleCoverPicChange}
+                      />
+                    </Flex>
                     <Box>
                       <label htmlFor="fullName">
                         <Text color={"white"}>Fullname</Text>
                       </label>
                       <Input id="fullName" {...register("fullName")} />
-                      {errors.fullName && errors.fullName.message}
+                      {errors.fullName && errors.fullName.message?.toString()}
                     </Box>
                     <Box>
                       <label htmlFor="username">
                         <Text color={"white"}>Username</Text>
                       </label>
                       <Input id="username" {...register("username")} />
-                      {errors.username && errors.username.message}
+                      {errors.username && errors.username.message?.toString()}
                     </Box>
 
                     <Box>
@@ -252,13 +286,10 @@ function ProfileSidebar() {
                 backgroundColor={"green"}
                 type="submit"
                 onClick={handleSubmit(onSubmit)}
-                loading={loading}
+                disabled={!isFormChanged()}
               >
                 Update Info
               </Button>
-              <DialogTrigger asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogTrigger>
             </DialogFooter>
             <DialogCloseTrigger />
           </DialogContent>
@@ -266,19 +297,17 @@ function ProfileSidebar() {
       </Flex>
       <Box ml="25px">
         <Text color={"white"}>
-          <h4>{loggedIn?.fullName}</h4>{" "}
+          <h4>{user?.fullName}</h4>{" "}
         </Text>
-        <Text color={"#8a8986"}>@{loggedIn?.username}</Text>
-        <Text color={"white"}>
-          {loggedIn?.bio ? loggedIn?.bio : "No Bio Yet"}
-        </Text>
+        <Text color={"#8a8986"}>@{user?.username}</Text>
+        <Text color={"white"}>{user?.bio ? user?.bio : "No Bio Yet"}</Text>
         <Flex gap={3}>
           <Flex gap={1}>
-            <Text color={"white"}>{loggedIn?._count?.following}</Text>
+            <Text color={"white"}>{user?._count?.following}</Text>
             <Text color={"#8a8986"}>Following</Text>
           </Flex>
           <Flex gap={1}>
-            <Text color={"white"}>{loggedIn?._count?.followers}</Text>
+            <Text color={"white"}>{user?._count?.followers}</Text>
             <Text color={"#8a8986"}>Followers</Text>
           </Flex>
         </Flex>

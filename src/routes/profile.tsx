@@ -8,38 +8,107 @@ import {
   Box,
   For,
   SimpleGrid,
+  Textarea,
   Tabs,
 } from "@chakra-ui/react";
 import data_img from "../assets/images.jpeg";
 import { Link,useParams, useNavigate } from "react-router-dom";
-import useAuthStore from "../hooks/useAuthStore";
+import useAuthStore from "../hooks/newAuthStore";
 import Sidebar from "../components/sidebar";
 import ProfileHeader from "../components/profileheader";
 import PostList from "@/components/postlist";
 import PostProfile from "@/components/profilepostlist";
 import SuggestedFollow from "@/components/suggestedfollow";
+import { profilePage } from "@/api/profilepageuser";
+import { User, currentUser } from "@/api/currentUser";
+import { useState, useEffect } from "react";
 import { LuCheckSquare, LuFolder, LuUser } from "react-icons/lu";
-function Profile() {
-  // const {isAuthenticated, users, currentUser, updateProfile } = useAuthStore();
-  
-  //  const { username } = useParams();
-  //  const navigate = useNavigate();
-   
-  //    if (!isAuthenticated) {
-  //      navigate('/login'); 
-  //    }
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { createThread } from "@/api/createthread";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FaUpload, FaImage } from "react-icons/fa";
+import {
+  DialogBody,
+  DialogCloseTrigger,
+  DialogActionTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+const threadSchema = z.object({
+  content: z.string().min(1, { message: "Content is required" }),
 
-  //  const user = users.find((user) => user.username === username);
-   
-  // if(!user){
-    
-  //   console.log(username)
-  //   console.log(users[0])
-  //   console.log(user)
-    
-  //   return <Text color={"white"}>User not found.</Text>
-  // }
+  image: z.instanceof(FileList).optional(), // Optional file input
+});
+
+type ThreadData = z.infer<typeof threadSchema>;
+function Profile() {
+  
   const { username } = useParams();
+  const [user, setUser] = useState<User | null>(null);
+  const [loggedIn, setLoggedin] = useState<User | null>(null);
+  const [preview, setPreview] = useState<string | null>('')
+  const [error, setError] = useState<string | null>('')
+  const { token } = useAuthStore();
+  useEffect(() => {
+      const getUserData = async () => {
+        if (token && username) {
+          try {
+            const data = await profilePage(token, username);
+            const loginuser = await currentUser(token);
+            setUser(data);
+            setLoggedin(loginuser);
+            console.log(data);
+            console.log(loginuser);
+        
+          } catch (err) {
+            setError("User not found or error occurred");
+            console.error("Error fetching user data:", err);
+          }
+        }
+      };
+  
+      if (username && token) {
+        getUserData();
+      }
+    }, [username, token, setLoggedin, setUser]);
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors },
+      } = useForm<ThreadData>({
+        resolver: zodResolver(threadSchema),
+      });
+      const contentValue = watch("content", "");
+      const imageValue = watch("image");
+      const onSubmit = async (data: any) => {
+        console.log(data);
+        if (!token) {
+          console.log("You're not logged in");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("content", data.content);
+    
+        if (data.image[0]) {
+          formData.append("image", data.image[0]);
+          setPreview(data.image[0]);
+        }
+    
+        try {
+          const response = await createThread(token, formData);
+          console.log(response.thread);
+          alert("Thread Uploaded");
+          window.location.reload();
+        } catch (error) {
+          console.error("Error updating user:", error);
+        }
+      };
   return (
     <>
       <Flex>
@@ -91,10 +160,11 @@ function Profile() {
             pb={4}
             mx={"auto"}
           >
-            <Flex gap={3}>
+            {user?.id === loggedIn?.id && (
+              <Flex gap={3}>
               {" "}
               <img
-                src={data_img}
+                src={user?.avatar ? user.avatar : data_img}
                 style={{
                   borderRadius: "100%",
                   width: "40px",
@@ -102,6 +172,13 @@ function Profile() {
                   display: "block",
                 }}
               />
+              <DialogRoot
+            key={"top"}
+            placement={"top"}
+            motionPreset="slide-in-bottom"
+            size={"lg"}
+          >
+            <DialogTrigger asChild>
               <Input
                 type="textarea"
                 width={"80%"}
@@ -109,6 +186,89 @@ function Profile() {
                 placeholder="What is happening?!"
                 color={"white"}
               />
+            </DialogTrigger>
+            <DialogContent background={"#1d1d1d"} color={"white"}>
+              <DialogHeader>
+                <DialogTitle>Addpost</DialogTitle>
+              </DialogHeader>
+              <DialogBody>
+                <Container
+                  borderBottomWidth={2}
+                  borderColor="#3F3F3F"
+                  pb={4}
+                  mx={"auto"}
+                >
+                  <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    encType="multipart/form-data"
+                    style={{ width: "90%" }}
+                  >
+                    <Flex gap={5}>
+                      {" "}
+                      <img
+                        src={data_img}
+                        style={{
+                          borderRadius: "100%",
+                          width: "40px",
+                          height: "40px",
+                          display: "block",
+                        }}
+                      />
+                      <Textarea
+                        border={"none"}
+                        borderRadius={"lg"}
+                        id="content"
+                        height={"200px"}
+                        placeholder="What is happening?!"
+                        color={"white"}
+                        {...register("content", {
+                          required: "This can't be empty",
+                        })}
+                      />
+                      <Flex direction={"column"} gap={"2"}>
+                        <div>
+                          <label htmlFor="image" className="upload-label">
+                            <input
+                              type="file"
+                              id="image"
+                              accept="image/png, image/jpeg"
+                              style={{ display: "none" }}
+                              {...register("image")}
+                            />
+                            <FaImage size={30} color="green" />
+                          </label>
+                          {preview && (
+                            <img
+                              src={preview}
+                              alt="image preview"
+                              width={100}
+                            />
+                          )}
+                        </div>
+                      </Flex>
+                    </Flex>
+                    {errors.content && <p>{errors.content.message}</p>}
+                  </form>
+                </Container>
+              </DialogBody>
+              <DialogFooter>
+                <Button
+                  backgroundColor={"green"}
+                  rounded={"2xl"}
+                  color={"white"}
+                  type="submit"
+                  mr={"10%"}
+                  onClick={handleSubmit(onSubmit)}
+                >
+                  Post
+                </Button>
+                {/* <DialogTrigger asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogTrigger> */}
+              </DialogFooter>
+              <DialogCloseTrigger />
+            </DialogContent>
+          </DialogRoot>
               <Button p={0} background={"none"}>
                 <svg
                   viewBox="0 0 24 24"
@@ -137,6 +297,8 @@ function Profile() {
                 Post
               </Button>
             </Flex>
+            )}
+            
           </Container>
           <Tabs.Root defaultValue="post">
             

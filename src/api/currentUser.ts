@@ -1,19 +1,19 @@
 import axios from 'axios';
 
-export interface CurrentUser {
+export interface User {
   id: number;
-  username: string;
-  email: string;
-  fullName: string;
-  bio:string
-  password:string
-  _count: {
-    followers: number;
-    following: number;
-  };
+    username: string;
+    fullName: string;
+    bio: string;
+    avatar: string;
+    coverPic: string;
+    _count: {
+      followers: number;
+      following: number;
+    };
 }
 
-export const currentUser = async (token:string): Promise<CurrentUser> => {
+export const currentUser = async (token:string): Promise<User> => {
   try {
     const response = await axios.get('http://localhost:5000/api/users/current-user', {
         headers: {

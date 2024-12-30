@@ -76,12 +76,12 @@ function PostList() {
       {thread?.map((data) => {
         const isLiked = likedThreads.has(data.id);
         return (
-          <Container borderWidth={2} borderColor="#3F3F3F"  pt={3}>
-            <Flex gap={4}>
+          <Container borderWidth={2} borderColor="#3F3F3F" pt={3}>
+            <Flex gap={4} width={"100%"}>
               {" "}
               <Link to={`/profile/${data.author.username}`} style={{ textDecoration: "none" }}>
                 <img
-                  src={data_img}
+                  src={data.author.avatar ? data.author.avatar : data_img}
                   style={{
                     borderRadius: "100%",
                     width: "40px",
@@ -107,7 +107,7 @@ function PostList() {
                   style={{ textDecoration: "none", width:"100%"}}
                 >
                   <Text color={"white"}>{data.content}</Text>
-                  {/* {data.image && <img src={``data.imagedata} height={"200px"}/>} */}
+                  {data.image && <img src={data.image} height={"200px"}/>}
                 </Link>
 
                 <Flex gap={3}>
@@ -160,6 +160,8 @@ function PostList() {
                   
                 </Flex>
               </Flex>
+             
+              
             </Flex>
           </Container>
         );

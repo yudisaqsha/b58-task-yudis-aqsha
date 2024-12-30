@@ -2,31 +2,30 @@ import {create} from "zustand";
 import {jwtDecode} from "jwt-decode";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { CurrentUser } from "@/api/currentUser";
+import { User } from "@/api/currentUser";
 import { Thread } from "@/api/fetchallthread";
-interface User {
-  id?: number;
-  username?: string;
-  email?: string;
-  fullName?: string;
-  bio?:string
-  password?:string
-  _count?: {
-    followers: number;
-    following: number;
-  };
-}
+// interface User {
+//   id?: number;
+//   username?: string;
+//   email?: string;
+//   fullName?: string;
+//   bio?:string
+//   _count?: {
+//     followers: number;
+//     following: number;
+//   };
+// }
 
 interface MyState {
   user:User|null
-  loggedIn : CurrentUser |null
+  loggedIn : User |null
   token: string | null;
   thread : Thread[]| null
   register: (user: User) => void;
   login: (token: string) => void;
   logout: () => void;
   setUser: (user: User) => void;
-  setLoggedin : (loggedIn:CurrentUser) =>void
+  setLoggedin : (loggedIn:User) =>void
   updateUserData: (updatedUser: User) => void;
   setAllThread: (thread:Thread[]) => void
   toggleLike: (id: number) => void;
@@ -50,7 +49,7 @@ const useAuthStore = create<MyState>((set) => ({
   setUser: (user: User) => {
     set({ user });
   },
-  setLoggedin: (loggedIn: CurrentUser) => {
+  setLoggedin: (loggedIn: User) => {
     set({ loggedIn });
   },
   logout: () => {

@@ -10,42 +10,45 @@ import {
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import data_img from "../assets/images.jpeg";
+import { User } from "@/api/currentUser";
+import { getSuggested } from "@/api/suggesteduser";
+import React, { useEffect, useState } from "react";
+import useAuthStore from "@/hooks/newAuthStore";
 
-interface followsuggest {
-  name: string;
-  username: string;
-}
-const listFollow: followsuggest[] = [
-  {
-    name: "Name1",
-    username: "username1",
-  },
-  {
-    name: "Name2",
-    username: "username2",
-  },
-  {
-    name: "Name1",
-    username: "username2",
-  },
-];
 function SuggestedFollow() {
+  const [user, setUser] = useState<User[] | null>(null);
+  const {token} = useAuthStore()
+  if(!token){
+    return
+  }
+  useEffect(() => {
+    const fetchSuggested = async () => {
+      try {
+        const Followdata = await getSuggested(token);
+        setUser(Followdata);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchSuggested();
+  }, [setUser]);
   return (
-    <Box backgroundColor="#262626" borderRadius={"2xl"}>
+    <Box backgroundColor="#262626" height={"400px"} borderRadius={"2xl"}overflowY={"auto"} scrollBehavior={"smooth"}>
       <Container my={5}>
         <Text color={"white"}>
           <h5>Suggested for you</h5>
         </Text>
       </Container>
-      <Container mt={4}>
+      <Container>
         <Flex flexDirection="column" gap={1}>
-          {listFollow.map((x) => {
+          {user?.map((x) => {
             return (
               <Flex gap={3}>
-                <Link to="/" style={{ textDecoration: "none" }}>
+                <Link to={`/profile/${x.username}`} style={{ textDecoration: "none" }}>
                   <Flex gap={3}>
                     <img
-                      src={data_img}
+                      src={x.avatar ? x.avatar : data_img}
                       style={{
                         borderRadius: "100%",
                         width: "40px",
@@ -53,9 +56,9 @@ function SuggestedFollow() {
                         display: "block",
                       }}
                     />
-                    <Flex flexDirection={"column"}>
-                      <Text color={"white"} height={"15%"}>
-                        {x.name}{" "}
+                    <Flex flexDirection={"column"} width={"90%"}>
+                      <Text color={"white"} >
+                        {x.fullName}{" "}
                       </Text>
                       <Text color={"#8a8986"}>{x.username}</Text>
                     </Flex>
