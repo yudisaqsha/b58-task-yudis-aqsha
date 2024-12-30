@@ -327,7 +327,7 @@ export async function addComment(req: Request, res: Response) {
         content,
         threadId: Number(id),
         authorId,
-        imagecomment:imagePath
+        image:imagePath
       },
     });
 
@@ -403,7 +403,7 @@ export async function showComments(req: Request, res: Response) {
       id: true,
       content: true,
     
-      imagecomment: true,
+      image: true,
       createdAt: true,
       author: {
         select: {
