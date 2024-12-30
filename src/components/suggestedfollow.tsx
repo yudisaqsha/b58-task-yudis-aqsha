@@ -36,12 +36,12 @@ function SuggestedFollow() {
   return (
     <Box backgroundColor="#262626" height={"400px"} borderRadius={"2xl"}overflowY={"auto"} scrollBehavior={"smooth"}>
       <Container my={5}>
-        <Text color={"white"}>
+        <Text color={"white"} >
           <h5>Suggested for you</h5>
         </Text>
       </Container>
       <Container>
-        <Flex flexDirection="column" gap={1}>
+        <Flex flexDirection="column">
           {user?.map((x) => {
             return (
               <Flex gap={3}>
@@ -56,7 +56,7 @@ function SuggestedFollow() {
                         display: "block",
                       }}
                     />
-                    <Flex flexDirection={"column"} width={"90%"}>
+                    <Flex flexDirection={"column"} width={"20vh"}>
                       <Text color={"white"} >
                         {x.fullName}{" "}
                       </Text>
