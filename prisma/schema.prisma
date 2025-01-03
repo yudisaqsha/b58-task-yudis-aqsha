@@ -12,3 +12,73 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Users {
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  email     String    @unique
+  fullName  String?
+  bio       String?
+  password  String
+  avatar    String?
+  coverPic  String?
+  isDeleted Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  threads   Thread[]
+  likes     Like[]
+  comments  Comment[]
+  following Follow[]  @relation("Following")
+  followers Follow[]  @relation("Followers")
+}
+
+model Thread {
+  id        Int       @id @default(autoincrement())
+  content   String
+  authorId  Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  author    Users     @relation(fields: [authorId], references: [id])
+  image     String?
+  image_url String?
+  likes     Like[]
+  comments  Comment[]
+  isDeleted Int       @default(0)
+}
+
+model Follow {
+  id          Int      @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+  createdAt   DateTime @default(now())
+
+  follower  Users @relation("Followers", fields: [followerId], references: [id])
+  following Users @relation("Following", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  threadId  Int
+  createdAt DateTime @default(now())
+
+  user   Users  @relation(fields: [userId], references: [id])
+  thread Thread @relation(fields: [threadId], references: [id])
+
+  @@unique([userId, threadId]) // A user can like a thread only once
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  authorId  Int
+  threadId  Int
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    Users    @relation(fields: [authorId], references: [id])
+  thread    Thread   @relation(fields: [threadId], references: [id])
+  isDeleted Int      @default(0)
+}
