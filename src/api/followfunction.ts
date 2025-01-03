@@ -1,10 +1,8 @@
 import axios from "axios";
-interface LikeThreadResponse {
-  message: string;
-}
-export const likeThread = async (token: string, id: number):Promise<LikeThreadResponse> => {
+
+export const followFunction = async (token: string, userId: number) => {
     try {
-      const response = await axios.post(`http://localhost:5000/api/thread/${id}/like`, null, {
+      const response = await axios.post(`http://localhost:5000/api/users/toggle-follow`, {userId:userId}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data; 

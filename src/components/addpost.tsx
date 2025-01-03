@@ -9,6 +9,7 @@ import {
   Color,
   Image,
   useDisclosure,
+  Spinner,
   Textarea,
 } from "@chakra-ui/react";
 import { CreatePost } from "./createpost";
@@ -18,6 +19,7 @@ import data_img from "../assets/images.jpeg";
 import PostList from "./postlist";
 import { FaUpload, FaImage } from "react-icons/fa";
 import { useForm } from "react-hook-form";
+import { fetchThreads } from "@/api/fetchallthread";
 import { z } from "zod";
 import { createThread } from "@/api/createthread";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,8 +45,9 @@ const threadSchema = z.object({
 
 type ThreadData = z.infer<typeof threadSchema>;
 function AddPost() {
-  const { token } = useAuthStore();
+  const { token,setAllThread } = useAuthStore();
   const [preview, setPreview] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -66,20 +69,24 @@ function AddPost() {
 
     if (data.image[0]) {
       formData.append("image", data.image[0]);
-      setPreview(data.image[0]);
+      setPreview(URL.createObjectURL(data.image[0]));
     }
-
+    setIsLoading(true); 
     try {
       const response = await createThread(token, formData);
       console.log(response.thread);
+      const listThread = await fetchThreads(token)
+      setAllThread(listThread)
       alert("Thread Uploaded");
-      window.location.reload();
+      window.location.reload()
     } catch (error) {
       console.error("Error updating user:", error);
+    }finally {
+      setIsLoading(false);
     }
   };
   
-
+  const isPostDisabled = !(contentValue || (imageValue && imageValue.length > 0));
   return (
     <Stack
       ml={"20%"}
@@ -170,14 +177,9 @@ function AddPost() {
                             />
                             <FaImage size={30} color="green" />
                           </label>
-                          {preview && (
-                            <img
-                              src={preview}
-                              alt="image preview"
-                              width={100}
-                            />
-                          )}
+                          {preview && <img src={preview} alt="image preview" width={100} />}
                         </div>
+                        
                       </Flex>
                     </Flex>
                     {errors.content && <p>{errors.content.message}</p>}
@@ -185,16 +187,21 @@ function AddPost() {
                 </Container>
               </DialogBody>
               <DialogFooter>
+                <DialogActionTrigger marginRight={"10%"}>
                 <Button
                   backgroundColor={"green"}
                   rounded={"2xl"}
                   color={"white"}
                   type="submit"
-                  mr={"10%"}
+                  
                   onClick={handleSubmit(onSubmit)}
+                  disabled={isPostDisabled || isLoading} // Disable when no content/image or during loading
+                  
                 >
                   Post
                 </Button>
+                </DialogActionTrigger>
+                
                 {/* <DialogTrigger asChild>
                   <Button variant="outline">Cancel</Button>
                 </DialogTrigger> */}
@@ -207,6 +214,22 @@ function AddPost() {
           </Button>
         </Flex>
       </Container>
+      {isLoading && (
+        <Box
+          position="fixed"
+          top={0}
+          left={0}
+          width="100%"
+          height="100%"
+          backgroundColor="rgba(0, 0, 0, 0.5)"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          zIndex={9999}
+        >
+          <Spinner size="xl" color="white" />
+        </Box>
+      )}
       <PostList></PostList>
     </Stack>
   );

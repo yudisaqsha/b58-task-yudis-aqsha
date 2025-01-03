@@ -15,7 +15,7 @@ export interface Thread {
     likes: number;
     comments: number;
   };
-  liked: boolean;
+  userHasLiked: boolean;
 }
 
 export const fetchThreads = async (token: string): Promise<Thread[]> => {
@@ -25,7 +25,7 @@ export const fetchThreads = async (token: string): Promise<Thread[]> => {
           Authorization: `Bearer ${token}`,  
         },
       });
-    return response.data.thread;
+    return response.data.threads;
   } catch (error) {
     throw new Error('Failed to fetch threads');
   }

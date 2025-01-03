@@ -1,10 +1,9 @@
 import axios from "axios";
-interface LikeThreadResponse {
-  message: string;
-}
-export const likeThread = async (token: string, id: number):Promise<LikeThreadResponse> => {
+import { User } from "./currentUser";
+
+export const searchBar = async (token: string, username:string) :Promise<User[]>=> {
     try {
-      const response = await axios.post(`http://localhost:5000/api/thread/${id}/like`, null, {
+      const response = await axios.post(`http://localhost:5000/api/users/search`, {username:username}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data; 

@@ -4,23 +4,15 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { User } from "@/api/currentUser";
 import { Thread } from "@/api/fetchallthread";
-// interface User {
-//   id?: number;
-//   username?: string;
-//   email?: string;
-//   fullName?: string;
-//   bio?:string
-//   _count?: {
-//     followers: number;
-//     following: number;
-//   };
-// }
-
+import { likeThread } from "@/api/likefunction";
+import { followFunction } from "@/api/followfunction";
+import { fetchFollowing } from "@/api/followingcheck";
+import { getSuggested } from "@/api/suggesteduser";
 interface MyState {
   user:User|null
   loggedIn : User |null
   token: string | null;
-  thread : Thread[]| null
+  threads : Thread[]
   register: (user: User) => void;
   login: (token: string) => void;
   logout: () => void;
@@ -28,17 +20,128 @@ interface MyState {
   setLoggedin : (loggedIn:User) =>void
   updateUserData: (updatedUser: User) => void;
   setAllThread: (thread:Thread[]) => void
-  toggleLike: (id: number) => void;
+  
+}
+interface FollowState {
+  followedUser: number[];
+  suggestedUsers: User[];
+  isLoading: boolean;
+  error: string | null;
+  fetchFollowed: (token:string) => Promise<void>;
+  fetchSuggestedUsers: (token:string) => Promise<void>;
+  toggleFollow: (token:string,userId: number) => Promise<void>;
   
 }
 
+export const useFollowStore = create<FollowState>((set, get) => ({
+  followedUser: [],
+  suggestedUsers : [],
+  isLoading: false,
+  error: null,
+  fetchFollowed: async (token:string) => {
+    try {
+      set({ isLoading: true });
+      const followedIds = await fetchFollowing(token);
+      set({ followedUser: followedIds, error: null });
+    } catch (error) {
+      set({ error: 'Failed to fetch followed users' });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
+  fetchSuggestedUsers: async (token:string) => {
+    try {
+      set({ isLoading: true });
+      const  users  = await getSuggested(token);
+      set({ suggestedUsers: users, error: null });
+    } catch (error) {
+      set({ error: 'Failed to fetch suggested users' });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  toggleFollow: async (token:string,userId: number) => {
+    try {
+      set({ isLoading: true });
+      await followFunction(token, userId);
+      set((state) => {
+        const followedUsers = state.followedUser;
+        const newFollowedUsers = followedUsers.includes(userId)
+          ? followedUsers.filter(id => id !== userId)
+          : [...followedUsers, userId];
+          
+        return {
+          followedUser: newFollowedUsers,
+          isLoading: false,
+          error: null
+        };
+      });
+    } catch (error) {
+      set({ error: 'Failed to toggle follow' });
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+}));
+interface LikeState {
+  likedThreads: Record<number, boolean>;
+  likeCounts: Record<number, number>;
+  loading: Record<number, boolean>;
+  toggleLike: (threadId: number, token: string) => Promise<void>;
+  initializeLikeState: (threadId: number, isLiked: boolean, count: number) => void;
+}
+
+export const useLikeStore = create<LikeState>((set, get) => ({
+  likedThreads: {},
+  likeCounts: {},
+  loading: {},
+  
+  initializeLikeState: (threadId, isLiked, count) => {
+    set((state) => ({
+      likedThreads: { ...state.likedThreads, [threadId]: isLiked },
+      likeCounts: { ...state.likeCounts, [threadId]: count }
+    }));
+  },
+
+  toggleLike: async (threadId: number, token: string) => {
+    if (!token) return;
+
+    set((state) => ({
+      loading: { ...state.loading, [threadId]: true }
+    }));
+
+    try {
+      const data = await likeThread(token, threadId);
+      
+      set((state) => {
+        const isLiked = data.message === "Thread liked successfully";
+        const currentCount = state.likeCounts[threadId] || 0;
+        
+        return {
+          likedThreads: { ...state.likedThreads, [threadId]: isLiked },
+          likeCounts: {
+            ...state.likeCounts,
+            [threadId]: isLiked ? currentCount + 1 : Math.max(currentCount - 1, 0)
+          },
+          loading: { ...state.loading, [threadId]: false }
+        };
+      });
+    } catch (error) {
+      console.error(error);
+      set((state) => ({
+        loading: { ...state.loading, [threadId]: false }
+      }));
+    }
+  }
+}));
 
 const useAuthStore = create<MyState>((set) => ({
   user: null,
   loggedIn:null,
   token: localStorage.getItem("token") || null,
-  thread:[],
+  threads:[],
   register: (user: User) => set({ user }),
   // ...loadState(),
   login: (token) => {
@@ -56,20 +159,15 @@ const useAuthStore = create<MyState>((set) => ({
     
     localStorage.removeItem("token");
     set({ token: null });
-  },
+  },  
   updateUserData: (updatedUser: User) => {
     set({ user: updatedUser }); 
   },
   setAllThread : (thread:Thread[])=>{
-    set({thread:thread})
+    set({threads:thread})
   },
-  toggleLike: (id) =>
-    set((state) => {
-      const updatedThreads = state.thread?.map((t) =>
-        t.id === id ? { ...t, liked: !t.liked, _count: { ...t._count, likes: t.liked ? t._count.likes - 1 : t._count.likes + 1 } } : t
-      );
-      return { thread: updatedThreads };
-    }),
+ 
+    
 }));
 
 export default useAuthStore;

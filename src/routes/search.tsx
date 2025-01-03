@@ -13,30 +13,51 @@ import {
 import data_img from "../assets/images.jpeg";
 import { Link } from "react-router-dom";
 import Sidebar from "../components/sidebar";
+import { useState, useEffect } from "react";
+import debounce from "lodash/debounce";
+import { searchBar } from "@/api/searchuser";
+import { User } from "@/api/currentUser";
 import ProfileSidebar from "../components/profilesidebar";
+import useAuthStore from "@/hooks/newAuthStore";
 import PostList from "@/components/postlist";
 import SuggestedFollow from "@/components/suggestedfollow";
 import { LuCheckSquare, LuFolder, LuUser } from "react-icons/lu";
-interface followsuggest {
-    name: string;
-    username: string;
-  }
-  const listFollow: followsuggest[] = [
-    {
-      name: "Name1",
-      username: "username1",
-    },
-    {
-      name: "Name2",
-      username: "username2",
-    },
-    {
-      name: "Name1",
-      username: "username2",
-    },
-  ];
 
 function Search() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { token } = useAuthStore();
+  const debouncedSearch = debounce(async (username: string) => {
+    if (!username.trim()) {
+      setUsers([]);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      if (!token) {
+        return;
+      }
+      const users = await searchBar(token, username);
+      setUsers(users);
+      console.log(users)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  }, 300);
+  useEffect(() => {
+    debouncedSearch(searchTerm);
+
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [searchTerm]);
   return (
     <>
       <Flex>
@@ -76,57 +97,56 @@ function Search() {
               <h3 style={{ color: "white" }}>Search</h3>
             </Flex>
           </Container>
-          <form action="" style={{marginTop:"25px"}}>
+          <form action="" style={{ marginTop: "25px" }}>
             <Flex justifyContent={"center"}>
-                <Input type="text" color={"white"} borderRadius={"xl"} placeholder="Search.." width={"80%"}/>
-                <Button type="submit" background={"none"} p={0}><svg
-                xmlns="http://www.w3.org/2000/svg"
-                x="0px"
-                y="0px"
-                width="40"
-                height="40"
-                style={{ fill: "white" }}
-                viewBox="0 0 30 30"
-              >
-                <path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"></path>
-              </svg></Button>
+              <Input
+                type="text"
+                color={"white"}
+                borderRadius={"xl"}
+                placeholder="Search.."
+                width={"80%"}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+               {loading && <div>Loading...</div>}
+               {error && <div className="error">{error}</div>}
             </Flex>
           </form>
-          {listFollow.map((x) => {
-                return (
-                  <Flex gap={3} ml={"10"} mt={5} >
-                    <Link to="/" style={{ textDecoration: "none" }}>
-                      <Flex gap={3}>
-                        <img
-                          src={data_img}
-                          style={{
-                            borderRadius: "100%",
-                            width: "40px",
-                            height: "40px",
-                            display: "block",
-                          }}
-                        />
-                        <Flex flexDirection={"column"}>
-                          <Text color={"white"} height={"15%"}>
-                            {x.name}{" "}
-                          </Text>
-                          <Text color={"#8a8986"}>{x.username}</Text>
-                        </Flex>
-                      </Flex>
-                    </Link>
-                    <Flex justifyContent={"end"} width={"70%"}>
-                      {" "}
-                      <Button
-                        background={"none"}
-                        borderRadius={"xl"}
-                        borderColor={"white"}
-                      >
-                        Follow
-                      </Button>{" "}
+          {users.map((x) => {
+            return (
+              <Flex gap={3} ml={"10"} mt={5}>
+                <Link to="/" style={{ textDecoration: "none" }}>
+                  <Flex gap={3}>
+                    <img
+                      src={x.avatar ? x.avatar : data_img}
+                      style={{
+                        borderRadius: "100%",
+                        width: "40px",
+                        height: "40px",
+                        display: "block",
+                      }}
+                    />
+                    <Flex flexDirection={"column"}>
+                      <Text color={"white"} height={"15%"}>
+                        {x.fullName}{" "}
+                      </Text>
+                      <Text color={"#8a8986"}>{x.username}</Text>
                     </Flex>
                   </Flex>
-                );
-              })}
+                </Link>
+                <Flex justifyContent={"end"} width={"70%"}>
+                  {" "}
+                  <Button
+                    background={"none"}
+                    borderRadius={"xl"}
+                    borderColor={"white"}
+                  >
+                    Follow
+                  </Button>{" "}
+                </Flex>
+              </Flex>
+            );
+          })}
         </Stack>
         <Stack height={"100%"} position="sticky">
           <Flex

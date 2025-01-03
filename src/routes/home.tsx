@@ -14,12 +14,9 @@ import AddPost from "@/components/addpost";
 import ProfileSidebar from "@/components/profilesidebar";
 import SuggestedFollow from "@/components/suggestedfollow";
 import useAuthStore from '../hooks/newAuthStore';
-import { useNavigate } from 'react-router-dom';
+import {useLocation } from 'react-router-dom';
 import React, { useEffect } from "react";
 function Home() {
- 
-  
-
   return (
     <Flex overflowY={"auto"} scrollBehavior={"smooth"} height={"100vh"}>
       <Sidebar/>

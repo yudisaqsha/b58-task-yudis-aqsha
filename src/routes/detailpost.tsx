@@ -28,6 +28,8 @@ import { addReply } from "@/api/addreply";
 import { z } from "zod";
 import { FaUpload, FaImage } from "react-icons/fa";
 import { User,currentUser } from "@/api/currentUser";
+import LikeButton from "@/components/LikeButton";
+
 const replySchema = z.object({
   content: z.string().min(1, { message: "Content is required" }),
 
@@ -102,6 +104,7 @@ function DetailPost() {
   };
   return (
     <>
+    
       <Flex scrollbar="hidden" overflowY="auto" height={"200vh"}>
         <Sidebar></Sidebar>
         <Stack
@@ -141,10 +144,11 @@ function DetailPost() {
           </Container>
 
           <Container borderBottomWidth={2} borderColor="#3F3F3F" mt={3}>
-            <Flex gap={3}>
+            {thread && (
+              <Flex gap={3}>
               {" "}
-              {!thread && <Text color={"white"}>Post not found.</Text>}
-              <Link to="/profile" style={{ textDecoration: "none" }}>
+              
+              <Link to={`/profile/${thread.author.username}`} style={{ textDecoration: "none" }}>
                 <img
                   src={thread?.author.avatar ? thread.author.avatar : data_img}
                   style={{
@@ -175,23 +179,7 @@ function DetailPost() {
                 </Link>
 
                 <Flex gap={3} mt={3}>
-                  <IconButton
-                    // onClick={() => likePost(post.id)}
-                    colorScheme="gray"
-                    aria-label="Like Post"
-                    size="sm"
-                    p={0}
-                    background={"none"}
-                  >
-                    {/* {post.liked ? (
-                      <AiFillHeart color="red" />
-                    ) : ( */}
-                    <AiOutlineHeart />
-                    {/* )} */}
-                    <Text m={"auto"} color={"white"}>
-                      {thread?._count.likes}
-                    </Text>
-                  </IconButton>
+                  <LikeButton threadId={thread!.id} initialLiked={thread!.userHasLiked} initialLikesCount={thread!._count.likes}></LikeButton>
                   <Button
                     p={0}
                     pb={0}
@@ -227,6 +215,8 @@ function DetailPost() {
                 </Flex>
               </Flex>
             </Flex>
+            )}
+            
           </Container>
 
           <Container
@@ -285,7 +275,7 @@ function DetailPost() {
                           )} */}
                   </div>
                 </Flex>
-                <Button type="submit" background={"green"} color={"white"} borderRadius={"lg"}>Submit</Button>
+                <Button type="submit" background={"green"} color={"white"} borderRadius={"lg"}>Post</Button>
               </Flex>
               {errors.content && <p>{errors.content.message}</p>}
             </form>

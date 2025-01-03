@@ -13,39 +13,45 @@ import data_img from "../assets/images.jpeg";
 import { User } from "@/api/currentUser";
 import { getSuggested } from "@/api/suggesteduser";
 import React, { useEffect, useState } from "react";
-import useAuthStore from "@/hooks/newAuthStore";
+import useAuthStore, { useFollowStore } from "@/hooks/newAuthStore";
+import  FollowButton  from "./followbutton";
 
 function SuggestedFollow() {
   const [user, setUser] = useState<User[] | null>(null);
-  const {token} = useAuthStore()
-  if(!token){
-    return
-  }
-  useEffect(() => {
-    const fetchSuggested = async () => {
-      try {
-        const Followdata = await getSuggested(token);
-        setUser(Followdata);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
+  const { token } = useAuthStore();
+  const { suggestedUsers, fetchSuggestedUsers, isLoading, fetchFollowed } =
+    useFollowStore();
+    const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-    fetchSuggested();
-  }, [setUser]);
+  useEffect(() => {
+    if (token) {
+      fetchSuggestedUsers(token)
+      fetchFollowed(token);
+    }
+  }, [token]);
   return (
-    <Box backgroundColor="#262626" height={"400px"} borderRadius={"2xl"}overflowY={"auto"} scrollBehavior={"smooth"}>
+    <Box
+      backgroundColor="#262626"
+      height={"400px"}
+      borderRadius={"2xl"}
+      overflowY={"auto"}
+      scrollBehavior={"smooth"}
+    >
       <Container my={5}>
-        <Text color={"white"} >
+        <Text color={"white"}>
           <h5>Suggested for you</h5>
         </Text>
       </Container>
       <Container>
         <Flex flexDirection="column">
-          {user?.map((x) => {
+          {suggestedUsers?.map((x) => {
             return (
               <Flex gap={3}>
-                <Link to={`/profile/${x.username}`} style={{ textDecoration: "none" }}>
+                <Link
+                  to={`/profile/${x.username}`}
+                  style={{ textDecoration: "none" }}
+                >
                   <Flex gap={3}>
                     <img
                       src={x.avatar ? x.avatar : data_img}
@@ -57,22 +63,16 @@ function SuggestedFollow() {
                       }}
                     />
                     <Flex flexDirection={"column"} width={"20vh"}>
-                      <Text color={"white"} >
-                        {x.fullName}{" "}
-                      </Text>
+                      <Text color={"white"}>{x.fullName} </Text>
                       <Text color={"#8a8986"}>{x.username}</Text>
                     </Flex>
                   </Flex>
                 </Link>
                 <Flex justifyContent={"end"} width={"70%"}>
                   {" "}
-                  <Button
-                    background={"none"}
-                    borderRadius={"xl"}
-                    borderColor={"white"}
-                  >
-                    Follow
-                  </Button>{" "}
+                  <FollowButton
+                    userId={x.id}
+                  />
                 </Flex>
               </Flex>
             );

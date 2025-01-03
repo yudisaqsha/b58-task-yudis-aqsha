@@ -49,8 +49,8 @@ function ProfileSidebar() {
   const [initialValues, setInitialValues] = useState<ProfileFormData | null>(
     null,
   );
-  const [user, setUser] = useState<User | null>(null);
-  const { token } = useAuthStore();
+  
+  const {user, setUser, token } = useAuthStore();
   const {
     register,
     handleSubmit,
@@ -90,6 +90,10 @@ function ProfileSidebar() {
   }, [token, setUser]);
 
   const onSubmit = async (data: any) => {
+    if(!data){
+      alert("Data can't be empty")
+      return;
+    }
     // updateProfile(data.email, data.fullName, data.username, data.bio);
     console.log(data);
     if (!token) {
@@ -110,9 +114,10 @@ function ProfileSidebar() {
     }
 
     try {
-      const response = await updateUser(token, formData);
-      setUser(response.user);
-      console.log("User updated successfully:", response.user);
+      await updateUser(token, formData);
+      const response = await currentUser(token)
+      setUser(response);
+      console.log("User updated successfully:", response);
       alert("Data Updated!");
       window.location.reload();
     } catch (error) {

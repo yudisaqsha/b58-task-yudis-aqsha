@@ -11,24 +11,31 @@ import {
   Image,
 } from "@chakra-ui/react";
 import  axios  from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate ,useLocation} from "react-router-dom";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useState, useEffect } from "react";
 import data_img from "../assets/images.jpeg";
 import { useLikeStore } from "../hooks/likebutton";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
-import { fetchThreads } from "@/api/fetchallthread";
-import { likeThread } from "@/api/likefunction";
+import { Thread,fetchThreads } from "@/api/fetchallthread";
 
+import LikeButton from "./LikeButton";
 function PostList() {
-  const { thread, setAllThread,toggleLike, token } = useAuthStore();
+  const {threads, setAllThread, token } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
-  const [likedThreads, setLikedThreads] = useState<Set<number>>(new Set());
+  
+  // const [likedThreads, setLikedThreads] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   
   // const { posts, likedPosts, likePost } = useAuthStore((state) => state);
   const navigate = useNavigate();
-  
+  const handleActionComplete = async () => {
+    if(!token){
+      return
+    }
+    const response = await fetchThreads(token);
+    setAllThread(response);
+  };
   useEffect(() => {
     const loadThreads = async () => {
       if (!token) {
@@ -52,29 +59,15 @@ function PostList() {
 
     loadThreads(); 
   }, [setAllThread, token]);
-  const handleLike = async (id: number) => {
-    if (!token) {
-      setError("You must be logged in to like a thread");
-      return;
-    }
+  
 
-    try {
-      await likeThread(token, id); 
-      toggleLike(id);
-    } catch (err) {
-      console.error("Error liking the thread:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
   
   return (
     <>
-      {thread?.length===0 && (
+      {threads?.length===0 && (
         <Text color={"white"}>No Thread Available</Text>
       )}
-      {thread?.map((data) => {
-        const isLiked = likedThreads.has(data.id);
+      {threads?.map((data) => {
         return (
           <Container borderWidth={2} borderColor="#3F3F3F" pt={3}>
             <Flex gap={4} width={"100%"}>
@@ -112,23 +105,8 @@ function PostList() {
 
                 <Flex gap={3}>
                   <Flex gap={2}>
-                    <IconButton
-                      onClick={() => handleLike(data.id)} 
-                      colorScheme="gray"
-                      aria-label="Like Post"
-                      size="sm"
-                      p={0}
-                      background={"none"}
-                    >
-                      {data.liked ? (
-                        <AiFillHeart color="red" />  
-                      ) : (
-                        <AiOutlineHeart /> 
-                      )}
-                      <Text m={"auto"} color={"white"}>
-                        {data._count.likes}
-                      </Text>
-                    </IconButton>
+                    <LikeButton threadId={data.id} initialLiked={data.userHasLiked} initialLikesCount={data._count.likes} ></LikeButton>
+                    
                     <Button p={0} pb={0} mt={"3.5"} height={"50%"} background={"none"}>
                     <Flex gap={1}>
                       <svg
