@@ -115,7 +115,7 @@ function Search() {
           {users.map((x) => {
             return (
               <Flex gap={3} ml={"10"} mt={5}>
-                <Link to="/" style={{ textDecoration: "none" }}>
+                <Link to={`/profile/${x.username}`} style={{ textDecoration: "none" }}>
                   <Flex gap={3}>
                     <img
                       src={x.avatar ? x.avatar : data_img}

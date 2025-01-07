@@ -8,11 +8,14 @@ import { likeThread } from "@/api/likefunction";
 import { followFunction } from "@/api/followfunction";
 import { fetchFollowing } from "@/api/followingcheck";
 import { getSuggested } from "@/api/suggesteduser";
+import { Comment } from "@/api/getcomment";
 interface MyState {
   user:User|null
   loggedIn : User |null
   token: string | null;
   threads : Thread[]
+  thread : Thread |null
+  comments : Comment[]
   register: (user: User) => void;
   login: (token: string) => void;
   logout: () => void;
@@ -20,7 +23,8 @@ interface MyState {
   setLoggedin : (loggedIn:User) =>void
   updateUserData: (updatedUser: User) => void;
   setAllThread: (thread:Thread[]) => void
-  
+  setThread:(thread:Thread) => void
+  setComments:(comment:Comment[]) => void
 }
 interface FollowState {
   followedUser: number[];
@@ -142,6 +146,8 @@ const useAuthStore = create<MyState>((set) => ({
   loggedIn:null,
   token: localStorage.getItem("token") || null,
   threads:[],
+  thread:null,
+  comments:[],
   register: (user: User) => set({ user }),
   // ...loadState(),
   login: (token) => {
@@ -166,8 +172,13 @@ const useAuthStore = create<MyState>((set) => ({
   setAllThread : (thread:Thread[])=>{
     set({threads:thread})
   },
+  setThread : (thread:Thread)=>{
+    set({thread:thread})
+  },
+  setComments:(comment:Comment[])=>{
+    set({comments:comment})
+  }
  
-    
 }));
 
 export default useAuthStore;

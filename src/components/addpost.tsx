@@ -1,28 +1,23 @@
 import {
   Input,
   Container,
-  Text,
   Button,
   Flex,
   Stack,
   Box,
-  Color,
-  Image,
-  useDisclosure,
   Spinner,
   Textarea,
 } from "@chakra-ui/react";
-import { CreatePost } from "./createpost";
-import { Link } from "react-router-dom";
+
 // const imageContext = require.context('../assets', false, /\.(jpg|jpeg|png)$/);
 import data_img from "../assets/images.jpeg";
 import PostList from "./postlist";
-import { FaUpload, FaImage } from "react-icons/fa";
-import { useForm } from "react-hook-form";
+import { FaImage } from "react-icons/fa";
+
 import { fetchThreads } from "@/api/fetchallthread";
-import { z } from "zod";
+
 import { createThread } from "@/api/createthread";
-import { zodResolver } from "@hookform/resolvers/zod";
+
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -35,58 +30,73 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import useAuthStore from "@/hooks/newAuthStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { currentUser } from "@/api/currentUser";
 
-const threadSchema = z.object({
-  content: z.string().min(1, { message: "Content is required" }),
-
-  image: z.instanceof(FileList).optional(), // Optional file input
-});
-
-type ThreadData = z.infer<typeof threadSchema>;
 function AddPost() {
-  const { token,setAllThread } = useAuthStore();
+  const { token, setAllThread, setUser, user } = useAuthStore();
   const [preview, setPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<ThreadData>({
-    resolver: zodResolver(threadSchema),
-  });
-  const contentValue = watch("content", "");
-  const imageValue = watch("image");
-  const onSubmit = async (data: any) => {
-    console.log(data);
+  const [content, setContent] = useState<string>("");
+  const [image, setImage] = useState<File | null>(null);
+
+  const onContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value);
+  };
+
+  const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setImage(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+  const onSubmit = async () => {
     if (!token) {
       console.log("You're not logged in");
       return;
     }
     const formData = new FormData();
-    formData.append("content", data.content);
+    formData.append("content", content);
 
-    if (data.image[0]) {
-      formData.append("image", data.image[0]);
-      setPreview(URL.createObjectURL(data.image[0]));
+    if (image) {
+      formData.append("image", image);
     }
-    setIsLoading(true); 
+
+    setIsLoading(true);
+
     try {
       const response = await createThread(token, formData);
       console.log(response.thread);
-      const listThread = await fetchThreads(token)
-      setAllThread(listThread)
+      const listThread = await fetchThreads(token);
+      setAllThread(listThread);
       alert("Thread Uploaded");
-      window.location.reload()
+      setContent("")
+      setImage(null)
     } catch (error) {
       console.error("Error updating user:", error);
-    }finally {
+    } finally {
       setIsLoading(false);
     }
   };
-  
-  const isPostDisabled = !(contentValue || (imageValue && imageValue.length > 0));
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      if (token) {
+        try {
+          const userData = await currentUser(token);
+          setUser(userData);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      } else {
+        console.log("No token found");
+      }
+    };
+
+    getCurrentUser();
+  }, [token, setUser]);
+
+  const isPostDisabled = !(content || image);
   return (
     <Stack
       ml={"20%"}
@@ -104,7 +114,7 @@ function AddPost() {
         <Flex gap={3}>
           {" "}
           <img
-            src={data_img}
+            src={user?.avatar ? user.avatar : data_img}
             style={{
               borderRadius: "100%",
               width: "40px",
@@ -139,14 +149,14 @@ function AddPost() {
                   mx={"auto"}
                 >
                   <form
-                    onSubmit={handleSubmit(onSubmit)}
+                    onSubmit={onSubmit}
                     encType="multipart/form-data"
                     style={{ width: "90%" }}
                   >
                     <Flex gap={5}>
                       {" "}
                       <img
-                        src={data_img}
+                        src={user?.avatar ? user.avatar : data_img}
                         style={{
                           borderRadius: "100%",
                           width: "40px",
@@ -161,47 +171,44 @@ function AddPost() {
                         height={"200px"}
                         placeholder="What is happening?!"
                         color={"white"}
-                        {...register("content", {
-                          required: "This can't be empty",
-                        })}
+                        value={content}
+                        required
+                        onChange={onContentChange}
                       />
-                      <Flex direction={"column"} gap={"2"}>
-                        <div>
-                          <label htmlFor="image" className="upload-label">
-                            <input
-                              type="file"
-                              id="image"
-                              accept="image/png, image/jpeg"
-                              style={{ display: "none" }}
-                              {...register("image")}
-                            />
-                            <FaImage size={30} color="green" />
-                          </label>
-                          {preview && <img src={preview} alt="image preview" width={100} />}
-                        </div>
-                        
-                      </Flex>
+                      <Flex direction={"column"} gap={"2"}></Flex>
                     </Flex>
-                    {errors.content && <p>{errors.content.message}</p>}
+                    {preview && (
+                      <img src={preview} alt="image preview" width={400} />
+                    )}
                   </form>
                 </Container>
               </DialogBody>
               <DialogFooter>
+                <div>
+                  <label htmlFor="image" className="upload-label">
+                    <input
+                      type="file"
+                      id="image"
+                      accept="image/png, image/jpeg"
+                      style={{ display: "none" }}
+                      onChange={onImageChange}
+                    />
+                    <FaImage size={30} color="green" />
+                  </label>
+                </div>
                 <DialogActionTrigger marginRight={"10%"}>
-                <Button
-                  backgroundColor={"green"}
-                  rounded={"2xl"}
-                  color={"white"}
-                  type="submit"
-                  
-                  onClick={handleSubmit(onSubmit)}
-                  disabled={isPostDisabled || isLoading} // Disable when no content/image or during loading
-                  
-                >
-                  Post
-                </Button>
+                  <Button
+                    backgroundColor={"green"}
+                    rounded={"2xl"}
+                    color={"white"}
+                    type="submit"
+                    onClick={onSubmit}
+                    disabled={isPostDisabled || isLoading} // Disable when no content/image or during loading
+                  >
+                    Post
+                  </Button>
                 </DialogActionTrigger>
-                
+
                 {/* <DialogTrigger asChild>
                   <Button variant="outline">Cancel</Button>
                 </DialogTrigger> */}

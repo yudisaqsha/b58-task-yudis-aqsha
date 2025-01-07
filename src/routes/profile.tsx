@@ -7,6 +7,7 @@ import {
   Stack,
   Box,
   For,
+  Grid,
   SimpleGrid,
   Textarea,
   Tabs,
@@ -39,6 +40,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import ProfileGallery from "@/components/picturegallery";
 const threadSchema = z.object({
   content: z.string().min(1, { message: "Content is required" }),
 
@@ -150,7 +152,9 @@ function Profile() {
             <Tabs.Content value="post">
               <PostProfile username={username}/>
             </Tabs.Content>
-            <Tabs.Content value="photo"></Tabs.Content>
+            <Tabs.Content value="photo">
+              <ProfileGallery username={username}></ProfileGallery>
+            </Tabs.Content>
           </Tabs.Root>
         </Stack>
         <Stack width={"450px"} ml={10} mt={"14"}>

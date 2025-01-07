@@ -1,15 +1,14 @@
 import axios from "axios";
-import { User } from "./currentUser";
 
-export const searchBar = async (token: string, username:string) :Promise<User[]>=> {
+export const deleteThread = async (token: string, id: number) => {
     try {
-      const response = await axios.post(`http://localhost:5000/api/users/search`, {username:username}, {
+      const response = await axios.delete(`http://localhost:5000/api/thread/delete/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return response.data.users; 
+      return response.data; 
     } catch (error: any) {
       if (error.response) {
-        throw new Error(error.response.data.message || 'Failed to toggle like');
+        throw new Error(error.response.data.message || 'Failed to Delete');
       } else if (error.request) {
         throw new Error('No response from server. Please try again later.');
       } else {
