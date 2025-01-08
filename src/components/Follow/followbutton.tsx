@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@chakra-ui/react";
-import useAuthStore, {useFollowStore} from "../hooks/newAuthStore";
+import useAuthStore, {useFollowStore} from "../../hooks/newAuthStore";
 import { followFunction } from "@/features/follow/followfunction";
 import { checkFollow } from "@/features/follow/checkfollow";
 interface FollowButtonProps {

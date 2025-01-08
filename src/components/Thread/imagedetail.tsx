@@ -7,52 +7,43 @@ import {
   Box,
   Textarea,
   Spinner,
+  Image,
 } from "@chakra-ui/react";
+import { Link, useParams } from "react-router-dom";
 import data_img from "../assets/images.jpeg";
-import { Link, useLocation } from "react-router-dom";
-import Sidebar from "@/components/Sidebar/sidebar";
-import ProfileSidebar from "@/components/Sidebar/profilesidebar";
-
-import SuggestedFollow from "@/components/Sidebar/suggestedfollow";
-import { useParams } from "react-router-dom";
+import { fetchComment } from "@/features/thread/getcomment";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useState, useEffect } from "react";
 import { fetchThreadsbyId } from "@/features/thread/threadbyid";
-
-import { Thread } from "@/types/threads";
-import { fetchComment } from "@/features/thread/getcomment";
-import FollowButton from "@/components/Follow/followbutton";
-import { addReply } from "@/features/thread/addreply";
-
 import { FaImage } from "react-icons/fa";
 import { currentUser } from "@/features/users/currentUser";
-import { User } from "@/types/user";
 import LikeButton from "@/components/Thread/LikeButton";
 import EditThread from "@/components/Thread/updatethreaddialog";
 import DeleteThread from "@/components/Thread/deletethread";
 import EditReply from "@/components/Thread/updateReplyDialog";
 import DeleteReply from "@/components/Thread/deletereply";
+import { addReply } from "@/features/thread/addreply";
+import FollowButton from "../Follow/followbutton";
 
-function DetailPost() {
+function ImageDetail() {
   const { id } = useParams();
-  const { token, comments, setComments } = useAuthStore((state) => state);
+  const { token, thread, setThread, comments, setComments, user, setUser } =
+    useAuthStore((state) => state);
   const [error, setError] = useState("");
   // const [commentText, setCommentText] = useState('');
   const [content, setContent] = useState("");
-  const [thread, setThread] = useState<Thread>();
 
-  const [user, setUser] = useState<User>();
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const location = useLocation();
   useEffect(() => {
     const getThread = async () => {
       if (token && id) {
+        setLoading(true);
         try {
           const userdata = await currentUser(token);
-          const data = await fetchThreadsbyId(token, id);
-          const commentData = await fetchComment(token, id);
+          const data = await fetchThreadsbyId(token, String(id));
+          const commentData = await fetchComment(token, String(id));
           setUser(userdata);
           setThread(data);
           setComments(commentData);
@@ -62,6 +53,8 @@ function DetailPost() {
           setError("User not found or error occurred");
           console.error("Error fetching user data:", err);
           console.log(error);
+        } finally {
+          setLoading(false);
         }
       }
     };
@@ -69,7 +62,7 @@ function DetailPost() {
     if (id && token) {
       getThread();
     }
-  }, [id, token, setThread, setComments, setUser, location]);
+  }, [id, token, setThread, setComments, setUser]);
   const onContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
   };
@@ -128,46 +121,34 @@ function DetailPost() {
           <Spinner size="xl" color="white" />
         </Box>
       )}
-      <Flex>
-        <Sidebar></Sidebar>
+      {/* <DialogRoot
+        size="cover"
+        placement="center"
+        motionPreset="slide-in-bottom"
+      >
+        <DialogTrigger asChild>
+          <Image src={thread?.image} width={"100%"} height={"100%"} key={id}/>
+        </DialogTrigger>
+        <DialogContent background={"#1d1d1d"} height={"auto"}>
+          <DialogHeader>
+            <DialogCloseTrigger />
+          </DialogHeader>
+          <DialogBody> */}
+      <Flex mx={10} gap={0} justifyContent={"center"} alignContent={"center"}>
+        <Image
+          src={thread?.image}
+          width={"35%"}
+          my={"100px"}
+          mx={10}
+          height={"auto"}
+        />
         <Stack
-          ml={"20%"}
           width={"45%"}
           height={"100%"}
           mt={4}
           borderRightWidth={2}
           borderColor={"#3F3F3F"}
-          scrollbar="hidden"
-          overflowY="auto"
         >
-          <Container>
-            <Flex gap={3}>
-              <Link to="/" style={{ textDecoration: "none" }}>
-                <svg
-                  viewBox="0 0 24 24"
-                  width={30}
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g
-                    id="SVGRepo_tracerCarrier"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  ></g>
-                  <g id="SVGRepo_iconCarrier">
-                    {" "}
-                    <path
-                      d="M9.66088 8.53078C9.95402 8.23813 9.95442 7.76326 9.66178 7.47012C9.36913 7.17698 8.89426 7.17658 8.60112 7.46922L9.66088 8.53078ZM4.47012 11.5932C4.17698 11.8859 4.17658 12.3607 4.46922 12.6539C4.76187 12.947 5.23674 12.9474 5.52988 12.6548L4.47012 11.5932ZM5.51318 11.5771C5.21111 11.2936 4.73648 11.3088 4.45306 11.6108C4.16964 11.9129 4.18475 12.3875 4.48682 12.6709L5.51318 11.5771ZM8.61782 16.5469C8.91989 16.8304 9.39452 16.8152 9.67794 16.5132C9.96136 16.2111 9.94625 15.7365 9.64418 15.4531L8.61782 16.5469ZM5 11.374C4.58579 11.374 4.25 11.7098 4.25 12.124C4.25 12.5382 4.58579 12.874 5 12.874V11.374ZM15.37 12.124V12.874L15.3723 12.874L15.37 12.124ZM17.9326 13.1766L18.4614 12.6447V12.6447L17.9326 13.1766ZM18.25 15.7351C18.2511 16.1493 18.5879 16.4841 19.0021 16.483C19.4163 16.4819 19.7511 16.1451 19.75 15.7309L18.25 15.7351ZM8.60112 7.46922L4.47012 11.5932L5.52988 12.6548L9.66088 8.53078L8.60112 7.46922ZM4.48682 12.6709L8.61782 16.5469L9.64418 15.4531L5.51318 11.5771L4.48682 12.6709ZM5 12.874H15.37V11.374H5V12.874ZM15.3723 12.874C16.1333 12.8717 16.8641 13.1718 17.4038 13.7084L18.4614 12.6447C17.6395 11.8276 16.5267 11.3705 15.3677 11.374L15.3723 12.874ZM17.4038 13.7084C17.9435 14.245 18.2479 14.974 18.25 15.7351L19.75 15.7309C19.7468 14.572 19.2833 13.4618 18.4614 12.6447L17.4038 13.7084Z"
-                      fill="#ffffff"
-                    ></path>{" "}
-                  </g>
-                </svg>
-              </Link>
-              <h3 style={{ color: "white" }}>Status</h3>
-            </Flex>
-          </Container>
-
           <Container borderBottomWidth={2} borderColor="#3F3F3F" mt={3}>
             {thread && (
               <Flex gap={3}>
@@ -202,16 +183,6 @@ function DetailPost() {
                   </Link>
 
                   <Text color={"white"}>{thread?.content}</Text>
-                  {thread?.image && (
-                    <Link to={`/imagedetail/${thread.id}`}>
-                      <img
-                        src={thread?.image}
-                        style={{ display: "block" }}
-                        height={"200px"}
-                        width={"100%"}
-                      />
-                    </Link>
-                  )}
 
                   <Flex gap={3} mt={3}>
                     <LikeButton
@@ -333,82 +304,85 @@ function DetailPost() {
               {preview && <img src={preview} alt="image preview" width={100} />}
             </form>
           </Container>
-          {comments?.map((data) => {
-            return (
-              <Container borderBottomWidth={2} borderColor="#3F3F3F" mt={3}>
-                <Flex gap={3}>
-                  {" "}
-                  <Link
-                    to={`/profile/${data.author.username}`}
-                    style={{ textDecoration: "none" }}
-                  >
-                    <img
-                      src={data?.author.avatar ? data.author.avatar : data_img}
-                      style={{
-                        borderRadius: "100%",
-                        width: "40px",
-                        height: "40px",
-                        display: "block",
-                      }}
-                    />
-                  </Link>
-                  <Flex gap={1} flexDirection={"column"}>
+          <Container
+            borderBottomWidth={2}
+            borderColor="#3F3F3F"
+            mt={3}
+            maxHeight="700px"
+            overflowY="auto"
+            p={2}
+            scrollBehavior={"smooth"}
+            scrollbar={"hidden"}
+          >
+            {comments?.map((data) => {
+              return (
+                <Container borderBottomWidth={2} borderColor="#3F3F3F" mt={3}>
+                  <Flex gap={3}>
+                    {" "}
                     <Link
                       to={`/profile/${data.author.username}`}
-                      style={{ textDecoration: "none", height: "20%" }}
+                      style={{ textDecoration: "none" }}
                     >
-                      <Flex gap={3}>
-                        <Text fontWeight={"bold"} color={"white"}>
-                          {data.author.fullName}
-                        </Text>
-                        <Text color={"#3F3F3F"}>@{data.author.username}</Text>
-                      </Flex>
-                    </Link>
-
-                    <Text color={"white"}>{data.content}</Text>
-                    {data.image && (
                       <img
-                        src={data.image}
-                        height={"200px"}
-                        style={{ marginBottom: "20px" }}
+                        src={
+                          data?.author.avatar ? data.author.avatar : data_img
+                        }
+                        style={{
+                          borderRadius: "100%",
+                          width: "40px",
+                          height: "40px",
+                          display: "block",
+                        }}
                       />
-                    )}
-                    {data.author.id === user?.id && (
-                      <>
-                        <Flex>
-                          <EditReply
-                            threadId={Number(id)}
-                            commentId={Number(data.id)}
-                          />
-                          <DeleteReply
-                            threadId={Number(id)}
-                            commentId={data.id}
-                          />
+                    </Link>
+                    <Flex gap={1} flexDirection={"column"}>
+                      <Link
+                        to={`/profile/${data.author.username}`}
+                        style={{ textDecoration: "none", height: "20%" }}
+                      >
+                        <Flex gap={3}>
+                          <Text fontWeight={"bold"} color={"white"}>
+                            {data.author.fullName}
+                          </Text>
+                          <Text color={"#3F3F3F"}>@{data.author.username}</Text>
                         </Flex>
-                      </>
-                    )}
+                      </Link>
+
+                      <Text color={"white"}>{data.content}</Text>
+                      {data.image && (
+                        <img
+                          src={data.image}
+                          height={"200px"}
+                          style={{ marginBottom: "20px" }}
+                        />
+                      )}
+                      {data.author.id === user?.id && (
+                        <>
+                          <Flex>
+                            <EditReply
+                              threadId={Number(id)}
+                              commentId={Number(data.id)}
+                            />
+                            <DeleteReply
+                              threadId={Number(id)}
+                              commentId={data.id}
+                            />
+                          </Flex>
+                        </>
+                      )}
+                    </Flex>
                   </Flex>
-                </Flex>
-              </Container>
-            );
-          })}
-        </Stack>
-        <Stack height={"100%"} position="sticky">
-          <Flex
-            height={"100%"}
-            gap={5}
-            mt={10}
-            ml={10}
-            flexDirection={"column"}
-            width={"450px"}
-          >
-            <ProfileSidebar></ProfileSidebar>
-            <SuggestedFollow></SuggestedFollow>
-          </Flex>
+                </Container>
+              );
+            })}
+          </Container>
         </Stack>
       </Flex>
+      {/* </DialogBody>
+        </DialogContent>
+      </DialogRoot> */}
     </>
   );
 }
 
-export default DetailPost;
+export default ImageDetail;

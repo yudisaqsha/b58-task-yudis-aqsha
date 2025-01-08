@@ -1,45 +1,60 @@
 import {
-  
   Container,
- 
+  Text,
   Button,
   Flex,
-  
   Box,
-  
   Spinner,
   Textarea,
 } from "@chakra-ui/react";
-
 import { FaImage } from "react-icons/fa";
-
-import {
-  DialogBody,
-  DialogCloseTrigger,
-  DialogActionTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import useAuthStore from "@/hooks/newAuthStore";
 import { useEffect, useState } from "react";
-import { updateThread } from "@/features/thread/updateThread";
-import { fetchThreadsbyId } from "@/features/thread/threadbyid";
-interface EditThreadProps {
+import { updateReply } from "@/features/thread/updateReply";
+import { fetchComment } from "@/features/thread/getcomment";
+import { fetchCommentbyId } from "@/features/thread/getreplybyid";
+import useAuthStore from "@/hooks/newAuthStore";
+import {
+  DialogRoot,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogBody,
+  DialogFooter,
+  DialogActionTrigger,
+  DialogCloseTrigger,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+interface EditReplyProps {
   threadId: number;
+  commentId: number;
 }
 
-function EditThread({ threadId }: EditThreadProps) {
-  const { token, setThread } = useAuthStore();
+function EditReply({ threadId, commentId }: EditReplyProps) {
+  const { token, setComments } = useAuthStore();
   const [currentImage, setCurrentImage] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
- 
+  const [errors, setErrors] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getCurrentReply = async () => {
+      if (token) {
+        try {
+          const replyData = await fetchCommentbyId(token, threadId, commentId);
+          setContent(replyData.content);
+          if (replyData.image) {
+            setCurrentImage(replyData.image);
+          }
+        } catch (error) {
+          console.error("Error fetching reply data:", error);
+        }
+      }
+    };
+    getCurrentReply();
+  }, [token, threadId, commentId]);
 
   const handleContentChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>,
@@ -55,45 +70,35 @@ function EditThread({ threadId }: EditThreadProps) {
       setPreviewImage(imagePreviewUrl);
     }
   };
-  useEffect(() => {
-    const getCurrentThread = async () => {
-      if (token) {
-        try {
-          const threadData = await fetchThreadsbyId(token, String(threadId));
-          setContent(threadData.content);
-          if (threadData.image) {
-            setCurrentImage(threadData.image);
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      } else {
-        console.log("No token found");
-      }
-    };
 
-    getCurrentThread();
-  }, [token]);
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!token) {
       console.log("You're not logged in");
       return;
     }
+
+    if (content.trim() === "") {
+      setErrors("Content is required");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("content", content);
 
     if (imageFile) {
       formData.append("image", imageFile);
     }
+
     setIsLoading(true);
     try {
-      await updateThread(token, formData, threadId);
-      const listThread = await fetchThreadsbyId(token, String(threadId));
-      setThread(listThread);
-      alert("Thread Updated");
+      await updateReply(token, formData, String(threadId), String(commentId));
+      const listReply = await fetchComment(token, String(threadId));
+      setComments(listReply);
+      alert("Reply Updated");
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.error("Error updating reply:", error);
     } finally {
       setIsLoading(false);
     }
@@ -126,13 +131,13 @@ function EditThread({ threadId }: EditThreadProps) {
         size={"lg"}
       >
         <DialogTrigger asChild>
-          <Button background={"none"} color={"white"}>
+          <Button background={"none"} p={0} color={"white"}>
             Edit
           </Button>
         </DialogTrigger>
         <DialogContent background={"#1d1d1d"} color={"white"}>
           <DialogHeader>
-            <DialogTitle>Update Thread</DialogTitle>
+            <DialogTitle>Update Reply</DialogTitle>
           </DialogHeader>
           <DialogBody>
             <Container
@@ -141,11 +146,7 @@ function EditThread({ threadId }: EditThreadProps) {
               pb={4}
               mx={"auto"}
             >
-              <form
-                onSubmit={onSubmit}
-                encType="multipart/form-data"
-                style={{ width: "90%" }}
-              >
+              <form onSubmit={onSubmit} style={{ width: "90%" }}>
                 <Flex gap={5}>
                   <Flex direction={"column"}>
                     <Textarea
@@ -160,7 +161,7 @@ function EditThread({ threadId }: EditThreadProps) {
                       value={content}
                       onChange={handleContentChange}
                     />
-                    {currentImage && !previewImage ? (
+                    {currentImage && !previewImage && (
                       <img
                         src={currentImage}
                         alt="Current thread image"
@@ -171,8 +172,7 @@ function EditThread({ threadId }: EditThreadProps) {
                           objectFit: "cover",
                         }}
                       />
-                    ) : null}
-
+                    )}
                     {previewImage && (
                       <img
                         src={previewImage}
@@ -188,22 +188,21 @@ function EditThread({ threadId }: EditThreadProps) {
                   </Flex>
                   <Flex direction={"column"} gap={"2"}></Flex>
                 </Flex>
+                {errors && <Text color="red.500">{errors}</Text>}
               </form>
             </Container>
           </DialogBody>
           <DialogFooter>
-            <div>
-              <label htmlFor="imageeditthread" className="upload-label">
-                <input
-                  type="file"
-                  id="imageeditthread"
-                  accept="image/png, image/jpeg"
-                  style={{ display: "none" }}
-                  onChange={handleImageChange}
-                />
-                <FaImage size={30} color="green" />
-              </label>
-            </div>
+            <label htmlFor="imageeditreply" className="upload-label">
+              <input
+                type="file"
+                id="imageeditreply"
+                accept="image/png, image/jpeg"
+                style={{ display: "none" }}
+                onChange={handleImageChange}
+              />
+              <FaImage size={30} color="green" />
+            </label>
             <DialogActionTrigger marginRight={"10%"}>
               <Button
                 backgroundColor={"green"}
@@ -211,15 +210,11 @@ function EditThread({ threadId }: EditThreadProps) {
                 color={"white"}
                 type="submit"
                 onClick={onSubmit}
-                disabled={isPostDisabled || isLoading}
+                disabled={isPostDisabled || isLoading} // Disable when no content/image or during loading
               >
                 Post
               </Button>
             </DialogActionTrigger>
-
-            {/* <DialogTrigger asChild>
-                  <Button variant="outline">Cancel</Button>
-                </DialogTrigger> */}
           </DialogFooter>
           <DialogCloseTrigger />
         </DialogContent>
@@ -227,4 +222,5 @@ function EditThread({ threadId }: EditThreadProps) {
     </>
   );
 }
-export default EditThread;
+
+export default EditReply;

@@ -27,7 +27,7 @@ import {
   DialogActionTrigger,
 } from "@/components/ui/dialog";
 
-import useAuthStore from "../hooks/newAuthStore";
+import useAuthStore from "../../hooks/newAuthStore";
 import data_img from "../assets/images.jpeg";
 
 function EditProfile() {

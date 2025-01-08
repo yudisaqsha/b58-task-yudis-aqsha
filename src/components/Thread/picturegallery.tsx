@@ -1,15 +1,4 @@
-import {
- 
-  Text,
-  
-  Flex,
-  
-  Box,
-  
-  Image,
-  Grid,
-  Spinner,
-} from "@chakra-ui/react";
+import { Text, Flex, Box, Image, Grid, Spinner } from "@chakra-ui/react";
 
 import { fetchProfileThreads } from "@/features/thread/profilethread";
 import { useLocation, Link } from "react-router-dom";
@@ -21,9 +10,9 @@ interface ProfileHeaderProps {
   username?: string;
 }
 function ProfileGallery({ username }: ProfileHeaderProps) {
-  const { threads, setAllThread, token,  } = useAuthStore();
+  const { threads, setAllThread, token } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
- 
+
   const [loading, setLoading] = useState<boolean>(false);
   const location = useLocation();
 

@@ -1,13 +1,7 @@
 import axios from "axios";
-import { Author } from "./fetchallthread";
-import { Thread } from "./fetchallthread";
+;
 import { apiURL } from "@/utils/baseurl";
-export  interface Comment{
-    id: number,
-    content: string,
-    image: string,
-    author: Author
-}
+import { Comment } from "@/types/comments";
 
 export const fetchComment = async (token: string,id:string): Promise<Comment[]> => {
     try {

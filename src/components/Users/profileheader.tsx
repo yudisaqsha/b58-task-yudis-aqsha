@@ -1,20 +1,12 @@
-import {
-  
-  Image,
-  Text,
-  Flex,
- 
-  Box,
- 
-} from "@chakra-ui/react";
+import { Image, Text, Flex, Box } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 
-
-import useAuthStore from "../hooks/newAuthStore";
+import useAuthStore from "../../hooks/newAuthStore";
 import data_img from "../assets/images.jpeg";
-import FollowButton from "./followbutton";
+import FollowButton from "../Follow/followbutton";
 import { profilePage } from "@/features/users/profilepageuser";
-import { User, currentUser } from "@/features/users/currentUser";
+import { currentUser } from "@/features/users/currentUser";
+import { User } from "@/types/user";
 
 import EditProfile from "./editprofile";
 interface ProfileHeaderProps {
@@ -40,7 +32,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ username }) => {
         } catch (err) {
           setError("User not found or error occurred");
           console.error("Error fetching user data:", err);
-          console.log(error)
+          console.log(error);
         }
       }
     };
@@ -98,8 +90,20 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ username }) => {
       </Box>
 
       <Flex mr={8} justifyContent={"end"}>
-        {user?.id === loggedIn?.id ? (<EditProfile/>) :loggedIn  && (<><Box mt={3}><FollowButton userId={Number(user?.id)} currentUserId={loggedIn.id}/></Box></>  ) }
-        
+        {user?.id === loggedIn?.id ? (
+          <EditProfile />
+        ) : (
+          loggedIn && (
+            <>
+              <Box mt={3}>
+                <FollowButton
+                  userId={Number(user?.id)}
+                  currentUserId={loggedIn.id}
+                />
+              </Box>
+            </>
+          )
+        )}
       </Flex>
       <Box ml="25px">
         <Text color={"white"}>

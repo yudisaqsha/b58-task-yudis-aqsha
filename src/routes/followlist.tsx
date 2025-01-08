@@ -1,59 +1,48 @@
-import {
-  
-  Container,
-  Text,
-  
-  Flex,
-  Stack,
- 
-  Tabs,
-} from "@chakra-ui/react";
+import { Container, Text, Flex, Stack, Tabs } from "@chakra-ui/react";
 import data_img from "../assets/images.jpeg";
 import { Link } from "react-router-dom";
-import Sidebar from "../components/sidebar";
-import ProfileSidebar from "../components/profilesidebar";
+import Sidebar from "../components/Sidebar/sidebar";
+import ProfileSidebar from "../components/Sidebar/profilesidebar";
 
-import SuggestedFollow from "@/components/suggestedfollow";
+import SuggestedFollow from "@/components/Sidebar/suggestedfollow";
 
-import {fetchFollowing } from "@/features/follow/fetchfollowing";
+import { fetchFollowing } from "@/features/follow/fetchfollowing";
 import { fetchFollower } from "@/features/follow/fetchfollowers";
 import useAuthStore from "@/hooks/newAuthStore";
 import { currentUser } from "@/features/users/currentUser";
 import { useEffect, useState } from "react";
-import FollowButton from "@/components/followbutton";
+import FollowButton from "@/components/Follow/followbutton";
 function FollowList() {
-  const {token, user, setUser} = useAuthStore()
+  const { token, user, setUser } = useAuthStore();
   const [error, setError] = useState("");
-  const [following, setFollowingList] = useState<any[]>()
-  const [followers,setFollowersList] = useState<any[]>()
+  const [following, setFollowingList] = useState<any[]>();
+  const [followers, setFollowersList] = useState<any[]>();
 
   useEffect(() => {
-      const getUserData = async () => {
-        if (token) {
-          try {
-            
-            const loginuser = await currentUser(token);
-            const followers = await fetchFollower(token,loginuser.id)
-            const following = await fetchFollowing(token,loginuser.id)
-            setUser(loginuser);
-            setFollowersList(followers)
-            setFollowingList(following)
-            console.log(followers)
-            console.log(following)
-           
-          } catch (err) {
-            setError("User not found or error occurred");
-            console.error("Error fetching user data:", err);
-            console.log(error)
-          }
+    const getUserData = async () => {
+      if (token) {
+        try {
+          const loginuser = await currentUser(token);
+          const followers = await fetchFollower(token, loginuser.id);
+          const following = await fetchFollowing(token, loginuser.id);
+          setUser(loginuser);
+          setFollowersList(followers);
+          setFollowingList(following);
+          console.log(followers);
+          console.log(following);
+        } catch (err) {
+          setError("User not found or error occurred");
+          console.error("Error fetching user data:", err);
+          console.log(error);
         }
-      };
-  
-      if ( token) {
-        getUserData();
       }
-    }, [setUser, setFollowersList,setFollowingList]);
-  
+    };
+
+    if (token) {
+      getUserData();
+    }
+  }, [setUser, setFollowersList, setFollowingList]);
+
   return (
     <>
       <Flex>
@@ -103,7 +92,7 @@ function FollowList() {
                   </Text>
                 </Link>
               </Tabs.Trigger>
-              <Tabs.Trigger value="followers" asChild >
+              <Tabs.Trigger value="followers" asChild>
                 <Link to="#followers" style={{ textDecoration: "none" }}>
                   <Text fontWeight={"bold"} fontSize={"xl"} color={"white"}>
                     Followers
@@ -114,8 +103,17 @@ function FollowList() {
             <Tabs.Content value="following">
               {following?.map((x) => {
                 return (
-                  <Flex gap={3} mx={"10"} mt={5}  alignItems="center" justifyContent="space-between">
-                    <Link to={`/profile/${x.username}`} style={{ textDecoration: "none" }}>
+                  <Flex
+                    gap={3}
+                    mx={"10"}
+                    mt={5}
+                    alignItems="center"
+                    justifyContent="space-between"
+                  >
+                    <Link
+                      to={`/profile/${x.username}`}
+                      style={{ textDecoration: "none" }}
+                    >
                       <Flex gap={3}>
                         <img
                           src={x.avatar ? x.avatar : data_img}
@@ -136,7 +134,9 @@ function FollowList() {
                     </Link>
                     <Flex justifyContent={"flex-end"} alignItems="center">
                       {" "}
-                      {user && (<FollowButton userId={x.id} currentUserId={user.id}/>)}
+                      {user && (
+                        <FollowButton userId={x.id} currentUserId={user.id} />
+                      )}
                     </Flex>
                   </Flex>
                 );
@@ -145,8 +145,17 @@ function FollowList() {
             <Tabs.Content value="followers">
               {followers?.map((x) => {
                 return (
-                  <Flex gap={3} mx={"10"} mt={5} alignItems="center" justifyContent="space-between">
-                    <Link to={`/profile/${x.username}`} style={{ textDecoration: "none" }}>
+                  <Flex
+                    gap={3}
+                    mx={"10"}
+                    mt={5}
+                    alignItems="center"
+                    justifyContent="space-between"
+                  >
+                    <Link
+                      to={`/profile/${x.username}`}
+                      style={{ textDecoration: "none" }}
+                    >
                       <Flex gap={3}>
                         <img
                           src={x.avatar ? x.avatar : data_img}
@@ -167,7 +176,9 @@ function FollowList() {
                     </Link>
                     <Flex justifyContent={"flex-end"} alignItems="center">
                       {" "}
-                      {user && (<FollowButton userId={x.id} currentUserId={user.id}/>)}
+                      {user && (
+                        <FollowButton userId={x.id} currentUserId={user.id} />
+                      )}
                     </Flex>
                   </Flex>
                 );

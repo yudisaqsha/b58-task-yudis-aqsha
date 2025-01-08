@@ -1,5 +1,5 @@
 import { apiURL } from '@/utils/baseurl';
-import { Comment } from './thread/getcomment';  
+import { Comment } from '@/types/comments'; 
 import axios from 'axios';
 
 

@@ -1,55 +1,44 @@
-import {
-  Input,
-  Container,
-  Text,
-  Button,
-  Flex,
-  Stack,
-  Box,
-  For,
-  SimpleGrid,
-  Tabs,
-} from "@chakra-ui/react";
+import { Input, Container, Text, Flex, Stack } from "@chakra-ui/react";
 import data_img from "../assets/images.jpeg";
 import { Link } from "react-router-dom";
-import Sidebar from "../components/sidebar";
+import Sidebar from "../components/Sidebar/sidebar";
 import { useState, useEffect } from "react";
 import debounce from "lodash/debounce";
 import { searchBar } from "@/features/users/searchuser";
-import ProfileSidebar from "../components/profilesidebar";
+import ProfileSidebar from "../components/Sidebar/profilesidebar";
 import useAuthStore from "@/hooks/newAuthStore";
-import PostList from "@/components/postlist";
-import SuggestedFollow from "@/components/suggestedfollow";
-import { LuCheckSquare, LuFolder, LuUser } from "react-icons/lu";
-import FollowButton from "@/components/followbutton";
-import { User, currentUser } from "@/features/users/currentUser";
+
+import SuggestedFollow from "@/components/Sidebar/suggestedfollow";
+
+import FollowButton from "@/components/Follow/followbutton";
+import { currentUser } from "@/features/users/currentUser";
+import { User } from "@/types/user";
 function Search() {
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuthStore();
-  const [loggedIn, setLoggedin] = useState<User>()
+  const [loggedIn, setLoggedin] = useState<User>();
   useEffect(() => {
-      const getUserData = async () => {
-        if (token ) {
-          try {
-            
-            const loginuser = await currentUser(token);
-            
-            setLoggedin(loginuser);
-            console.log(loginuser);
-          } catch (err) {
-            setError("User not found or error occurred");
-            console.error("Error fetching user data:", err);
-          }
-        }
-      };
-  
+    const getUserData = async () => {
       if (token) {
-        getUserData();
+        try {
+          const loginuser = await currentUser(token);
+
+          setLoggedin(loginuser);
+          console.log(loginuser);
+        } catch (err) {
+          setError("User not found or error occurred");
+          console.error("Error fetching user data:", err);
+        }
       }
-    }, [token, setLoggedin]);
+    };
+
+    if (token) {
+      getUserData();
+    }
+  }, [token, setLoggedin]);
   const debouncedSearch = debounce(async (username: string) => {
     if (!username.trim()) {
       setUsers([]);
@@ -64,7 +53,7 @@ function Search() {
       }
       const users = await searchBar(token, username);
       setUsers(users);
-      console.log(users)
+      console.log(users);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setUsers([]);
@@ -129,14 +118,24 @@ function Search() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-               {loading && <div>Loading...</div>}
-               {error && <div className="error">{error}</div>}
+              {loading && <div>Loading...</div>}
+              {error && <div className="error">{error}</div>}
             </Flex>
           </form>
           {users.map((x) => {
             return (
-              <Flex width={"80%"} gap={2} mx={"auto"} mt={5} alignItems="center" justifyContent="space-between">
-                <Link to={`/profile/${x.username}`} style={{ textDecoration: "none" }}>
+              <Flex
+                width={"80%"}
+                gap={2}
+                mx={"auto"}
+                mt={5}
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Link
+                  to={`/profile/${x.username}`}
+                  style={{ textDecoration: "none" }}
+                >
                   <Flex gap={3}>
                     <img
                       src={x.avatar ? x.avatar : data_img}
@@ -165,9 +164,11 @@ function Search() {
                     Follow
                   </Button>{" "} */}
                   {loggedIn && (
-                    <FollowButton userId={x.id} currentUserId={loggedIn.id}></FollowButton>
+                    <FollowButton
+                      userId={x.id}
+                      currentUserId={loggedIn.id}
+                    ></FollowButton>
                   )}
-                  
                 </Flex>
               </Flex>
             );

@@ -15,9 +15,10 @@ import { useState, useEffect } from "react";
 import data_img from "../assets/images.jpeg";
 
 import { fetchThreads } from "@/features/thread/fetchallthread";
-import FollowButton from "./followbutton";
+import FollowButton from "../Follow/followbutton";
 import LikeButton from "./LikeButton";
-import { User, currentUser } from "@/features/users/currentUser";
+import {  currentUser } from "@/features/users/currentUser";
+import { User } from "@/types/user";
 function PostList() {
   const {threads, setAllThread, token } = useAuthStore();
   const [error, setError] = useState<string | null>(null);

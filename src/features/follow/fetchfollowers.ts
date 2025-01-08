@@ -1,5 +1,5 @@
 import axios from "axios";
-import { User } from "../users/currentUser";
+
 import { apiURL } from "@/utils/baseurl";
 export const fetchFollower= async (token: string, id:number)=> {
     try {

@@ -1,24 +1,6 @@
 import axios from 'axios';
 import { apiURL } from '@/utils/baseurl';
-export interface Author {
-  id:number
-  username: string;
-  fullName: string;
-  avatar:string
-}
-
-export interface Thread {
-  id:number
-  content: string;
-  image:string
-  author: Author;
-  _count: {
-    likes: number;
-    comments: number;
-  };
-  userHasLiked: boolean;
-}
-
+import { Thread } from '@/types/threads';
 export const fetchThreads = async (token: string): Promise<Thread[]> => {
   try {
     const response = await axios.get(apiURL+'thread', {

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Thread } from './fetchallthread';
+import { Thread } from '@/types/threads';
 import { apiURL } from '@/utils/baseurl';
 apiURL
 export const fetchThreadsbyId = async (token: string, id:string): Promise<Thread> => {

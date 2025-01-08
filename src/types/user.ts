@@ -1,6 +1,13 @@
-interface User{
-    username:string,
-    email:string,
-    password:string
-}
-export default User
+export interface User {
+    id: number;
+      username: string;
+      fullName: string;
+      bio: string;
+      avatar: string;
+      coverPic: string;
+     
+      _count: {
+        followers: number;
+        following: number;
+      };
+  }

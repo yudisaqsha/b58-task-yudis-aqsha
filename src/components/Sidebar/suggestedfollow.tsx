@@ -1,40 +1,31 @@
-import {
-  Input,
-  Container,
-  Text,
-  Button,
-  Flex,
-  Stack,
-  Box,
-  Color,
-} from "@chakra-ui/react";
+import { Container, Text, Flex, Box } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import data_img from "../assets/images.jpeg";
-import { User, currentUser } from "@/features/users/currentUser";
+import { currentUser } from "@/features/users/currentUser";
+import { User } from "@/types/user";
 import { getSuggested } from "@/features/follow/suggesteduser";
-import React, { useEffect, useState } from "react";
-import useAuthStore, { } from "@/hooks/newAuthStore";
+import { useEffect, useState } from "react";
+import useAuthStore from "@/hooks/newAuthStore";
 
-import  FollowButton  from "./followbutton";
+import FollowButton from "../Follow/followbutton";
 
 function SuggestedFollow() {
   const { token } = useAuthStore();
   // const { suggestedUsers, fetchSuggestedUsers, isLoading, fetchFollowed } =
   //   useFollowStore();
-  const [suggestedUsers, setSuggestedUsers] = useState<User[]>()
-  const [loggedIn, setLoggedin] = useState<User>()
-  
+  const [suggestedUsers, setSuggestedUsers] = useState<User[]>();
+  const [loggedIn, setLoggedin] = useState<User>();
 
   useEffect(() => {
-    const fetchSuggested = async ()=>{
+    const fetchSuggested = async () => {
       if (token) {
-        const listSuggested = await getSuggested(token)
-        const loggedin = await currentUser(token)
-        setSuggestedUsers(listSuggested)
-        setLoggedin(loggedin)
+        const listSuggested = await getSuggested(token);
+        const loggedin = await currentUser(token);
+        setSuggestedUsers(listSuggested);
+        setLoggedin(loggedin);
       }
-    }
-    fetchSuggested()
+    };
+    fetchSuggested();
   }, [token, setSuggestedUsers, setLoggedin]);
   return (
     <Box
@@ -75,11 +66,9 @@ function SuggestedFollow() {
                   </Flex>
                 </Link>
                 <Flex justifyContent={"end"} width={"70%"}>
-                  {loggedIn && <FollowButton
-                    userId={x.id}
-                    currentUserId={loggedIn.id}
-                  />}
-                  {" "}
+                  {loggedIn && (
+                    <FollowButton userId={x.id} currentUserId={loggedIn.id} />
+                  )}{" "}
                   {/*  */}
                 </Flex>
               </Flex>

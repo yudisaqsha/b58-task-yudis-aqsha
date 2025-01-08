@@ -1,18 +1,6 @@
 import axios from 'axios';
 import { apiURL } from '@/utils/baseurl';
-export interface User {
-  id: number;
-    username: string;
-    fullName: string;
-    bio: string;
-    avatar: string;
-    coverPic: string;
-   
-    _count: {
-      followers: number;
-      following: number;
-    };
-}
+import { User } from "@/types/user";
 
 export const currentUser = async (token:string): Promise<User> => {
   try {

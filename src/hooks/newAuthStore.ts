@@ -1,10 +1,10 @@
 import {create} from "zustand";
 
-import { User } from "@/features/users/currentUser";
-import { Thread } from "@/features/thread/fetchallthread";
+import { User } from "@/types/user";
+import { Thread } from "@/types/threads";
 import { likeThread } from "@/features/like/likefunction";
 
-import { Comment } from "@/features/thread/getcomment";
+import { Comment } from "@/types/comments";
 
 interface MyState {
   user:User|null

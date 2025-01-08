@@ -1,18 +1,14 @@
 import {
-    Input,
+    
     Container,
     Text,
     Button,
     Flex,
-    IconButton,
-    Stack,
-    Box,
-    Color,
-    Image,
+    
     Spinner
   } from "@chakra-ui/react";
   import { fetchProfileThreads } from "@/features/thread/profilethread";
-  import { Link, useNavigate,useLocation } from "react-router-dom";
+  import { Link, useLocation } from "react-router-dom";
   import useAuthStore from "@/hooks/newAuthStore";
   import data_img from "../assets/images.jpeg";
   import { useEffect,useState } from "react";
@@ -23,7 +19,7 @@ import {
   function PostProfile({ username }: ProfileHeaderProps) {
     const { threads, setAllThread, token } = useAuthStore();
     const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate();
+   
     const [loading, setLoading] = useState<boolean>(false);
     const location = useLocation();
 

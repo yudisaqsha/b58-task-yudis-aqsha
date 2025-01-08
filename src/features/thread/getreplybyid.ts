@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Comment } from "./getcomment";
+import { Comment } from "@/types/comments";
 import { apiURL } from "@/utils/baseurl";
 export const fetchCommentbyId = async (token: string,threadId:number,commentId:number): Promise<Comment> => {
     try {

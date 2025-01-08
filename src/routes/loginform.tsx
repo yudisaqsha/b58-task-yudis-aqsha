@@ -22,36 +22,31 @@ function Login() {
   // const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    
-   
     try {
       const result = await loginUser(data.username, data.password);
 
       if (result.token) {
-        
         login(result.token);
-        alert('Login successful!');
+        alert("Login successful!");
 
-        
-        navigate('/home');
+        navigate("/home");
       } else {
-        setError(result.message || 'Login failed');
-        console.log(error)
+        setError(result.message || "Login failed");
+        console.log(error);
         alert(result.message);
       }
     } catch (err) {
-      setError('An error occurred while logging in.');
+      setError("An error occurred while logging in.");
       console.error(err);
     } finally {
       // setLoading(false);
     }
   };
 
-  const {  login } = useAuthStore();
- 
+  const { login } = useAuthStore();
+
   const navigate = useNavigate();
 
-  
   return (
     <>
       <Container pt={20} width="450px">
@@ -86,7 +81,6 @@ function Login() {
               style={{ backgroundColor: "green", color: "white" }}
               type="submit"
               borderRadius="2xl"
-              
             >
               Login
             </Button>

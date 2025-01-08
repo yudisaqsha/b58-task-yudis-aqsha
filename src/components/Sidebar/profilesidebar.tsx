@@ -1,21 +1,12 @@
-import {
-  
-  Image,
-  
-  Text,
-  Flex,
-  Box,
- 
-} from "@chakra-ui/react";
-import  { useEffect } from "react";
+import { Image, Text, Flex, Box } from "@chakra-ui/react";
+import { useEffect } from "react";
 import { currentUser } from "@/features/users/currentUser";
 
-import EditProfile from "./editprofile";
-import useAuthStore from "../hooks/newAuthStore";
+import EditProfile from "../Users/editprofile";
+import useAuthStore from "../../hooks/newAuthStore";
 import data_img from "../assets/images.jpeg";
 
 function ProfileSidebar() {
- 
   const { user, setUser, token } = useAuthStore();
 
   // const avatar = watch("avatar");

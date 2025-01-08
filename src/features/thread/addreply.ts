@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { apiURL } from '@/utils/baseurl';
-import { Comment } from './getcomment';
+import { Comment } from '@/types/comments';
 
 export const addReply = async (token:string,id:string,formData:FormData): Promise<{ message: string, comment: Comment }> => {
     try {

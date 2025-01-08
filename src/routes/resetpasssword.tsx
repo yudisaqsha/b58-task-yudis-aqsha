@@ -1,4 +1,4 @@
-import { Input, Container,  Button, Flex } from "@chakra-ui/react";
+import { Input, Container, Button, Flex } from "@chakra-ui/react";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,7 @@ const schema = z
   })
   .refine((data) => data.passwordold !== data.passwordnew, {
     message: "Cannot use the same password",
-    path: ["passwordnew"], 
+    path: ["passwordnew"],
   });
 
 type FormData = z.infer<typeof schema>;
@@ -29,7 +29,6 @@ function ResetPassword() {
   const onSubmit: SubmitHandler<FormData> = (data) => {
     console.log(data);
     navigate("/login");
-    
   };
 
   return (

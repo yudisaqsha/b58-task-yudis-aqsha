@@ -1,5 +1,5 @@
 import { apiURL } from '@/utils/baseurl';
-import { Thread } from './thread/fetchallthread';  
+import { Thread } from '@/types/threads'; 
 import axios from 'axios';
 
 

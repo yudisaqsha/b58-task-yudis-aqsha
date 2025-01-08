@@ -17,7 +17,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 function Register() {
   // const { register: registerStore } = useAuthStore();
-  
+
   const [errorMessage, setErrorMessage] = useState("");
   const {
     register,
@@ -28,28 +28,30 @@ function Register() {
   });
   const navigate = useNavigate();
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    
-    const {  email } = data;
-    const username = email.split("@")[0]; 
+    const { email } = data;
+    const username = email.split("@")[0];
     // registerUser(username,fullName,email,password)
-  
+
     try {
-      const result = await registerUser(data.fullName, username, data.email, data.password);
+      const result = await registerUser(
+        data.fullName,
+        username,
+        data.email,
+        data.password,
+      );
 
       if (result.user) {
-        
-        alert('Registration successful!');
-        navigate('/home');
+        alert("Registration successful!");
+        navigate("/home");
       } else {
-        setErrorMessage(result.message || 'Registration failed');
-        console.log(errorMessage)
+        setErrorMessage(result.message || "Registration failed");
+        console.log(errorMessage);
         alert(result.message);
       }
     } catch (err) {
-      setErrorMessage('An error occurred while registering.');
+      setErrorMessage("An error occurred while registering.");
       console.error(err);
-    } 
-  
+    }
   };
 
   return (

@@ -1,24 +1,7 @@
 import axios from 'axios';
-import { Thread } from './fetchallthread';
+import { Thread } from '@/types/threads';
 import { apiURL } from '@/utils/baseurl';
-// export interface Author {
-//   id:number
-//   username: string;
-//   fullName: string;
-//   avatar:string
-// }
 
-// export interface Thread {
-//   id:number
-//   content: string;
-//   author: Author;
-//   image:string
-//   _count: {
-//     likes: number;
-//     comments: number;
-//   };
-//   liked: boolean;
-// }
 
 export const fetchProfileThreads = async (token: string, username:string): Promise<Thread[]> => {
   try {

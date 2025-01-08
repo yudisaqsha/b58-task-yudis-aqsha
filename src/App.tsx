@@ -9,7 +9,7 @@ import Profile from "./routes/profile";
 import FollowList from "./routes/followlist";
 import Search from "./routes/search";
 import DetailPost from "./routes/detailpost";
-import ImageDetail from "./components/imagedetail";
+import ImageDetail from "./components/Thread/imagedetail";
 
 import ProtectedRoute from "./components/protectedroute";
 function App() {

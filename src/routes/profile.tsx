@@ -1,84 +1,18 @@
-import {
-  Input,
-  Container,
-  Text,
-  Button,
-  Flex,
-  Stack,
-  Box,
-  For,
-  Grid,
-  SimpleGrid,
-  Textarea,
-  Tabs,
-} from "@chakra-ui/react";
-import data_img from "../assets/images.jpeg";
-import { Link,useParams, useNavigate } from "react-router-dom";
-import useAuthStore from "../hooks/newAuthStore";
-import Sidebar from "../components/sidebar";
-import ProfileHeader from "../components/profileheader";
-import PostList from "@/components/postlist";
-import PostProfile from "@/components/profilepostlist";
-import SuggestedFollow from "@/components/suggestedfollow";
-import { profilePage } from "@/features/users/profilepageuser";
-import { User, currentUser } from "@/features/users/currentUser";
-import { useState, useEffect } from "react";
-import { LuCheckSquare, LuFolder, LuUser } from "react-icons/lu";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { createThread } from "@/features/createthread";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { FaUpload, FaImage } from "react-icons/fa";
-import {
-  DialogBody,
-  DialogCloseTrigger,
-  DialogActionTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import ProfileGallery from "@/components/picturegallery";
-const threadSchema = z.object({
-  content: z.string().min(1, { message: "Content is required" }),
+import { Container, Flex, Stack, Box, Tabs } from "@chakra-ui/react";
 
-  image: z.instanceof(FileList).optional(), // Optional file input
-});
+import { Link, useParams } from "react-router-dom";
 
-type ThreadData = z.infer<typeof threadSchema>;
+import Sidebar from "../components/Sidebar/sidebar";
+import ProfileHeader from "../components/Users/profileheader";
+
+import PostProfile from "@/components/Thread/profilepostlist";
+import SuggestedFollow from "@/components/Sidebar/suggestedfollow";
+
+import ProfileGallery from "@/components/Thread/picturegallery";
+
 function Profile() {
-  
   const { username } = useParams();
-  const [user, setUser] = useState<User | null>(null);
-  const [loggedIn, setLoggedin] = useState<User | null>(null);
-  const [preview, setPreview] = useState<string | null>('')
-  const [error, setError] = useState<string | null>('')
-  const { token } = useAuthStore();
-  useEffect(() => {
-      const getUserData = async () => {
-        if (token && username) {
-          try {
-            const data = await profilePage(token, username);
-            const loginuser = await currentUser(token);
-            setUser(data);
-            setLoggedin(loginuser);
-            console.log(data);
-            console.log(loginuser);
-        
-          } catch (err) {
-            setError("User not found or error occurred");
-            console.error("Error fetching user data:", err);
-          }
-        }
-      };
-  
-      if (username && token) {
-        getUserData();
-      }
-    }, [username, token, setLoggedin, setUser]);
-    
+
   return (
     <>
       <Flex>
@@ -89,7 +23,6 @@ function Profile() {
           mt={4}
           borderRightWidth={2}
           borderColor={"#3F3F3F"}
-          
         >
           <Container>
             <Flex gap={3}>
@@ -119,14 +52,12 @@ function Profile() {
             </Flex>
           </Container>
           <Stack height={"100%"} px={8}>
-            <ProfileHeader username={username}/>
+            <ProfileHeader username={username} />
           </Stack>
-          
+
           <Tabs.Root defaultValue="post">
-            
             <Tabs.List>
-            
-            <Tabs.Trigger value="post" asChild>
+              <Tabs.Trigger value="post" asChild>
                 <Box px={"25%"} borderBottomWidth={2} borderRightWidth={2}>
                   <Link
                     style={{ textUnderlineOffset: "2", color: "white" }}
@@ -146,11 +77,9 @@ function Profile() {
                   </Link>
                 </Box>
               </Tabs.Trigger>
-          
-              
             </Tabs.List>
             <Tabs.Content value="post">
-              <PostProfile username={username}/>
+              <PostProfile username={username} />
             </Tabs.Content>
             <Tabs.Content value="photo">
               <ProfileGallery username={username}></ProfileGallery>
