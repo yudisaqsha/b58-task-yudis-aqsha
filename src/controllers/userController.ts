@@ -29,67 +29,75 @@ export async function getAllUsers(req: Request, res: Response) {
 }
 
 export async function getSuggestedUsers(req: Request, res: Response) {
-  const { id } = (req as any).user;
+  try {
+    const userId = (req as any).user.id;
 
-  const currentUser = await prisma.users.findUnique({
-    where: { id },
-    select: {
-      followers: {
-        select: {
-          id: true,
-        },
-      },
-      following: {
-        select: {
-          id: true,
-        },
-      },
-    },
-  });
-
-  if (!currentUser) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-
-  const followersIds = currentUser.followers.map((follower) => follower.id);
-  const followingIds = currentUser.following.map((following) => following.id);
-
-  const allUsers = await prisma.users.findMany({
-    where: {
-      isDeleted: 0,
-      id: { not: id },
-      NOT: {
-        id: {
-          in: followingIds,
-        },
-      },
-    },
-    select: {
-      id: true,
-      username: true,
-      email: true,
-      fullName: true,
-      avatar: true,
-      _count: {
-        select: {
-          followers: true,
-          following: true,
-        },
-      },
-    },
-  });
-
-  const sortedUsers = allUsers.sort((a, b) => {
-    const aIsFollowedBack = followingIds.includes(a.id);
-    const bIsFollowedBack = followingIds.includes(b.id);
-
-    if (aIsFollowedBack === bIsFollowedBack) {
-      return 0;
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
-    return aIsFollowedBack ? 1 : -1;
-  });
 
-  res.json({ message: 'Get all users successful', users: sortedUsers });
+    const notFollowedBack = await prisma.users.findMany({
+      where: {
+        following: {
+          some: {
+            followerId: Number(userId),
+          },
+        },
+        followers: {
+          none: {
+            followingId: Number(userId),
+          },
+        },
+        isDeleted: 0,
+      },
+      select: {
+        id: true,
+        username: true,
+        fullName: true,
+        avatar: true,
+      },
+    });
+
+    const priorityId = notFollowedBack.map((user) => user.id);
+
+    const mostFollowers = await prisma.users.findMany({
+      where: {
+        id: {
+          notIn: [...priorityId, Number(userId)],
+        },
+        isDeleted: 0,
+        followers: {
+          none: {
+            followingId: Number(userId),
+          },
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+        fullName: true,
+        avatar: true,
+      },
+      orderBy: {
+        followers: {
+          _count: 'desc',
+        },
+      },
+    });
+
+    const suggestions = [...notFollowedBack, ...mostFollowers];
+
+    res.status(200).json({
+      message: 'get all suggested successful',
+      users: suggestions,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error retrieving user',
+      error,
+    });
+  }
 }
 
 export async function getUserByUsername(req: Request, res: Response) {
@@ -127,6 +135,7 @@ export async function getUserByUsername(req: Request, res: Response) {
 }
 export async function searchUser(req: Request, res: Response) {
   const { username } = req.body;
+  const id = (req as any).user.id;
 
   try {
     const users = await prisma.users.findMany({
@@ -135,6 +144,7 @@ export async function searchUser(req: Request, res: Response) {
           contains: username,
           mode: 'insensitive',
         },
+        id: { not: id },
       },
       select: {
         id: true,
@@ -197,7 +207,6 @@ export async function updateUser(req: Request, res: Response) {
         coverPic?: Express.Multer.File[];
       };
 
-      // Upload avatar if present
       if (files.avatar && files.avatar[0]) {
         try {
           const result = await cloudinary.uploader.upload(
@@ -287,13 +296,13 @@ export async function deleteUser(req: Request, res: Response) {
 }
 export async function checkFollow(req: Request, res: Response) {
   const { userId } = req.query;
-  const currentUserId = (req as any).user.id;
+  const { id } = req.params;
 
   try {
     const existingFollow = await prisma.follow.findFirst({
       where: {
         followerId: Number(userId),
-        followingId: currentUserId,
+        followingId: Number(id),
       },
     });
 
@@ -305,54 +314,7 @@ export async function checkFollow(req: Request, res: Response) {
     res.status(500).json({ message: 'Error checking follow status', error });
   }
 }
-export async function getFollowers(req: Request, res: Response) {
-  const { id } = (req as any).user;
 
-  try {
-    const currentUser = await prisma.users.findUnique({
-      where: { id },
-      select: {
-        followers: {
-          select: { id: true },
-        },
-      },
-    });
-
-    if (!currentUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const followersIds = currentUser.followers.map((followers) => followers.id);
-    res.json(followersIds);
-  } catch (error) {
-    console.error('Error fetching followed users:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-}
-export async function getFollowed(req: Request, res: Response) {
-  const { id } = (req as any).user;
-
-  try {
-    const currentUser = await prisma.users.findUnique({
-      where: { id },
-      select: {
-        following: {
-          select: { id: true },
-        },
-      },
-    });
-
-    if (!currentUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const followingIds = currentUser.following.map((following) => following.id);
-    res.json(followingIds);
-  } catch (error) {
-    console.error('Error fetching followed users:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-}
 export async function toggleFollow(req: Request, res: Response) {
   const { userId } = req.body;
   const currentUserId = (req as any).user.id;
@@ -417,7 +379,10 @@ export async function getCurrentUser(req: Request, res: Response) {
         email: true,
         fullName: true,
         avatar: true,
+        coverPic: true,
         bio: true,
+        followers: true,
+        following: true,
         _count: {
           select: {
             followers: true,
@@ -434,5 +399,63 @@ export async function getCurrentUser(req: Request, res: Response) {
     }
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving user', error });
+  }
+}
+
+export async function getFollowers(req: Request, res: Response) {
+  const { id } = req.params;
+  try {
+    const result = await prisma.follow.findMany({
+      where: {
+        followerId: Number(id),
+      },
+      include: {
+        following: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+    res.status(200).json({
+      message: 'Success get following',
+      followers: result.map((f) => f.following),
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error Retrieving Following',
+    });
+  }
+}
+
+export async function getFollowing(req: Request, res: Response) {
+  const { id } = req.params;
+  try {
+    const result = await prisma.follow.findMany({
+      where: {
+        followingId: Number(id),
+      },
+      include: {
+        follower: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+    res.status(200).json({
+      message: 'Success get following',
+      following: result.map((f) => f.follower),
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error Retrieving Followers',
+    });
   }
 }

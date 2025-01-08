@@ -29,7 +29,7 @@ export async function showThreads(req: Request, res: Response) {
           },
         },
         _count: {
-          select: { likes: true, comments: true },
+          select: { likes: true, comments: { where: { isDeleted: 0 } } },
         },
 
         likes: userId
@@ -89,7 +89,7 @@ export async function showThreadsbyId(req: Request, res: Response) {
           },
         },
         _count: {
-          select: { likes: true, comments: true },
+          select: { likes: true, comments: { where: { isDeleted: 0 } } },
         },
 
         likes: userId
@@ -152,7 +152,7 @@ export async function showThreadsbyUsername(req: Request, res: Response) {
           },
         },
         _count: {
-          select: { likes: true, comments: true },
+          select: { likes: true, comments: { where: { isDeleted: 0 } } },
         },
 
         likes: userId
@@ -489,4 +489,109 @@ export async function showComments(req: Request, res: Response) {
     },
   });
   res.json({ message: 'get all comment successful', comment: allComment });
+}
+export async function updateComment(req: Request, res: Response) {
+  const { threadId, commentId } = req.params;
+  const { content } = req.body;
+  const authorId = (req as any).user.id;
+  const loggedInUserId = (req as any).user.id;
+  let imagePath: string | null = null;
+
+  if (req.file) {
+    try {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'thread',
+      });
+
+      imagePath = result.secure_url;
+    } catch (error) {
+      console.error('Error uploading image to Cloudinary:', error);
+      return res.status(500).json({ message: 'Error uploading image', error });
+    }
+  }
+
+  let data = {
+    content,
+    authorId: parseInt(authorId),
+    image: imagePath,
+  };
+
+  if (!content) {
+    return res
+      .status(400)
+      .json({ message: 'Content is required to update the comment' });
+  }
+
+  try {
+    const existingComment = await prisma.comment.findFirst({
+      where: {
+        id: Number(commentId),
+        threadId: Number(threadId),
+      },
+    });
+
+    if (!existingComment) {
+      return res
+        .status(404)
+        .json({ message: 'Comment not found in this thread' });
+    }
+
+    if (existingComment.authorId !== loggedInUserId) {
+      return res
+        .status(401)
+        .json({ message: 'User not authorized to update this comment' });
+    }
+
+    if (existingComment.isDeleted === 1) {
+      return res
+        .status(400)
+        .json({ message: 'Comment is already deleted and cannot be updated' });
+    }
+
+    const updatedComment = await prisma.comment.update({
+      where: { id: Number(commentId) },
+      data: data,
+    });
+
+    res
+      .status(200)
+      .json({
+        message: 'Comment updated successfully',
+        comment: updatedComment,
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error updating comment', error });
+  }
+}
+export async function showCommentsById(req: Request, res: Response) {
+  const { threadId, commentId } = req.params;
+
+  const comment = await prisma.comment.findFirst({
+    where: {
+      isDeleted: 0,
+      threadId: Number(threadId),
+      id: Number(commentId),
+    },
+    select: {
+      id: true,
+      content: true,
+      image: true,
+      createdAt: true,
+      author: {
+        select: {
+          id: true,
+          username: true,
+          fullName: true,
+          avatar: true,
+        },
+      },
+    },
+  });
+
+  if (!comment) {
+    return res.status(404).json({ message: 'Comment not found' });
+  }
+
+  res.json({ message: 'Get comment successful', comment });
 }

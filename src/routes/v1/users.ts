@@ -16,6 +16,8 @@ userRoute.put(
 userRoute.delete('/delete/:id', authentication, userController.deleteUser);
 userRoute.post('/toggle-follow', authentication, userController.toggleFollow);
 userRoute.get('/:username', authentication, userController.getUserByUsername);
-userRoute.get('/search', authentication, userController.searchUser);
-userRoute.get('/following', authentication, userController.getFollowed);
+userRoute.post('/search', authentication, userController.searchUser);
+userRoute.get('/following/:id', authentication, userController.getFollowing);
+userRoute.get('/followers/:id', authentication, userController.getFollowers);
+userRoute.get('/:id/checkfollow', authentication, userController.checkFollow);
 export default userRoute;

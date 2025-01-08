@@ -41,4 +41,15 @@ threadRoute.delete(
   authentication,
   threadController.deleteComment,
 );
+threadRoute.put(
+  '/:threadId/comment/:commentId/update',
+  upload.single('image'),
+  authentication,
+  threadController.updateComment,
+);
+threadRoute.get(
+  '/:threadId/comment/:commentId/',
+  authentication,
+  threadController.showCommentsById,
+);
 export default threadRoute;
