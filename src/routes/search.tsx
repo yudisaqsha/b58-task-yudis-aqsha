@@ -15,14 +15,14 @@ import { Link } from "react-router-dom";
 import Sidebar from "../components/sidebar";
 import { useState, useEffect } from "react";
 import debounce from "lodash/debounce";
-import { searchBar } from "@/features/searchuser";
+import { searchBar } from "@/features/users/searchuser";
 import ProfileSidebar from "../components/profilesidebar";
 import useAuthStore from "@/hooks/newAuthStore";
 import PostList from "@/components/postlist";
 import SuggestedFollow from "@/components/suggestedfollow";
 import { LuCheckSquare, LuFolder, LuUser } from "react-icons/lu";
 import FollowButton from "@/components/followbutton";
-import { User, currentUser } from "@/features/currentUser";
+import { User, currentUser } from "@/features/users/currentUser";
 function Search() {
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);

@@ -1,16 +1,12 @@
+import { apiURL } from '@/utils/baseurl';
 import axios from 'axios';
 
-export interface ProfilePage {
-  username?:string
-  token?: string;
-  message?: string;
-  
-}
 
-export const threadProfile = async (token:string, username:string): Promise<ProfilePage> => {
+
+export const threadProfile = async (token:string, username:string) => {
   try {
     const response = await axios.get(
-      `http://localhost:5000/api/thread/${username}`,
+      apiURL+`thread/${username}`,
       {
         headers: {
           'Authorization':`Bearer ${token}`

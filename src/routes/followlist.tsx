@@ -1,26 +1,24 @@
 import {
-  Input,
+  
   Container,
   Text,
-  Button,
+  
   Flex,
   Stack,
-  Box,
-  For,
-  SimpleGrid,
+ 
   Tabs,
 } from "@chakra-ui/react";
 import data_img from "../assets/images.jpeg";
 import { Link } from "react-router-dom";
 import Sidebar from "../components/sidebar";
 import ProfileSidebar from "../components/profilesidebar";
-import PostList from "@/components/postlist";
+
 import SuggestedFollow from "@/components/suggestedfollow";
-import { LuCheckSquare, LuFolder, LuUser } from "react-icons/lu";
-import {Follow, fetchFollowing } from "@/features/fetchfollowing";
-import { fetchFollower } from "@/features/fetchfollowers";
+
+import {fetchFollowing } from "@/features/follow/fetchfollowing";
+import { fetchFollower } from "@/features/follow/fetchfollowers";
 import useAuthStore from "@/hooks/newAuthStore";
-import { User, currentUser } from "@/features/currentUser";
+import { currentUser } from "@/features/users/currentUser";
 import { useEffect, useState } from "react";
 import FollowButton from "@/components/followbutton";
 function FollowList() {
@@ -46,6 +44,7 @@ function FollowList() {
           } catch (err) {
             setError("User not found or error occurred");
             console.error("Error fetching user data:", err);
+            console.log(error)
           }
         }
       };

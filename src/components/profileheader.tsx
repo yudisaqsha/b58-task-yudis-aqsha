@@ -1,24 +1,21 @@
 import {
-  Input,
-  Container,
+  
   Image,
   Text,
   Flex,
-  Stack,
+ 
   Box,
-  Color,
-  Textarea,
-  useDisclosure,
+ 
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+
 
 import useAuthStore from "../hooks/newAuthStore";
 import data_img from "../assets/images.jpeg";
 import FollowButton from "./followbutton";
-import { profilePage } from "@/features/profilepageuser";
-import { User, currentUser } from "@/features/currentUser";
-import { updateUser } from "@/features/updateuser";
+import { profilePage } from "@/features/users/profilepageuser";
+import { User, currentUser } from "@/features/users/currentUser";
+
 import EditProfile from "./editprofile";
 interface ProfileHeaderProps {
   username?: string;
@@ -43,6 +40,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ username }) => {
         } catch (err) {
           setError("User not found or error occurred");
           console.error("Error fetching user data:", err);
+          console.log(error)
         }
       }
     };

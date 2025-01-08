@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { Thread } from './fetchallthread';
-
+import { apiURL } from '@/utils/baseurl';
+apiURL
 export const fetchThreadsbyId = async (token: string, id:string): Promise<Thread> => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/thread/${id}`, {
+      const response = await axios.get(apiURL+`thread/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,  
           },

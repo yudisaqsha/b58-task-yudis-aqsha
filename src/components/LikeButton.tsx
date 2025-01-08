@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 // import {Button} from '@chakra-ui/react'
-import { likeThread } from "@/features/likefunction";
+import { likeThread } from "@/features/like/likefunction";
 import { IconButton, Text } from "@chakra-ui/react";
 import useAuthStore, {useLikeStore} from "@/hooks/newAuthStore";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";

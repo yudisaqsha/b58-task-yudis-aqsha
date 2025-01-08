@@ -14,9 +14,9 @@ import data_img from "../assets/images.jpeg";
 import PostList from "./postlist";
 import { FaImage } from "react-icons/fa";
 
-import { fetchThreads } from "@/features/fetchallthread";
+import { fetchThreads } from "@/features/thread/fetchallthread";
 
-import { createThread } from "@/features/createthread";
+import { createThread } from "@/features/thread/createthread";
 
 import {
   DialogBody,
@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useState, useEffect } from "react";
-import { currentUser } from "@/features/currentUser";
+import { currentUser } from "@/features/users/currentUser";
 
 function AddPost() {
   const { token, setAllThread, setUser, user } = useAuthStore();

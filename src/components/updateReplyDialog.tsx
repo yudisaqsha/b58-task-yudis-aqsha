@@ -1,25 +1,23 @@
 import {
-    Input,
+    
     Container,
     Text,
     Button,
     Flex,
-    Stack,
+    
     Box,
-    Color,
-    Image,
-    useDisclosure,
+    
     Spinner,
     Textarea,
   } from "@chakra-ui/react";
-  import { FaUpload, FaImage } from "react-icons/fa";
+  import { FaImage } from "react-icons/fa";
   import { useEffect, useState } from "react";
-  import { updateReply } from "@/features/updateReply";
-  import { fetchComment } from "@/features/getcomment";
-  import { fetchCommentbyId } from "@/features/getreplybyid";
+  import { updateReply } from "@/features/thread/updateReply";
+  import { fetchComment } from "@/features/thread/getcomment";
+  import { fetchCommentbyId } from "@/features/thread/getreplybyid";
   import  useAuthStore  from "@/hooks/newAuthStore";
   import { DialogRoot, DialogTrigger, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogActionTrigger, DialogCloseTrigger, DialogTitle } from "@/components/ui/dialog";
-  import data_img from "@/assets/images.jpeg"
+  
   interface EditReplyProps {
     threadId: number;
     commentId: number;

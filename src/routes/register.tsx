@@ -6,8 +6,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 // import { useAuth } from "@/hooks/authcontext";
 // import useAuthStore from "@/hooks/useAuthStore";
-import  useAuthStore  from "@/hooks/newAuthStore";
-import { registerUser } from "@/features/registerapi";
+
+import { registerUser } from "@/features/authentication/registerapi";
 const schema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   email: z.string().email("Invalid email format").min(1, "Email is required"),
@@ -16,7 +16,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 function Register() {
-  const { register: registerStore } = useAuthStore();
+  // const { register: registerStore } = useAuthStore();
   
   const [errorMessage, setErrorMessage] = useState("");
   const {
@@ -29,7 +29,7 @@ function Register() {
   const navigate = useNavigate();
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     
-    const { fullName, email, password } = data;
+    const {  email } = data;
     const username = email.split("@")[0]; 
     // registerUser(username,fullName,email,password)
   
@@ -37,11 +37,12 @@ function Register() {
       const result = await registerUser(data.fullName, username, data.email, data.password);
 
       if (result.user) {
-        registerStore(result.user);
+        
         alert('Registration successful!');
         navigate('/home');
       } else {
         setErrorMessage(result.message || 'Registration failed');
+        console.log(errorMessage)
         alert(result.message);
       }
     } catch (err) {
@@ -61,7 +62,7 @@ function Register() {
             <Input
               {...register("fullName")}
               color={"white"}
-              placeholder="Username"
+              placeholder="Full Name"
             />
             {errors.fullName && (
               <p style={{ color: "white" }}>{errors.fullName.message}</p>

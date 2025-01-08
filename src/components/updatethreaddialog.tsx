@@ -26,8 +26,8 @@ import {
 } from "@/components/ui/dialog";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useEffect, useState } from "react";
-import { updateThread } from "@/features/updateThread";
-import { fetchThreadsbyId } from "@/features/threadbyid";
+import { updateThread } from "@/features/thread/updateThread";
+import { fetchThreadsbyId } from "@/features/thread/threadbyid";
 interface EditThreadProps {
   threadId: number;
 }

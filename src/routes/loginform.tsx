@@ -2,14 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { Input, Container, Text, Button, Flex } from "@chakra-ui/react";
 import useAuthStore from "../hooks/newAuthStore";
 import { useState } from "react";
-import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 const schema = z.object({
   username: z.string().min(5, "username is required"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
-import { loginUser } from "@/features/loginapi";
+import { loginUser } from "@/features/authentication/loginapi";
 type FormData = z.infer<typeof schema>;
 function Login() {
   const {
@@ -19,7 +19,7 @@ function Login() {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     
@@ -36,13 +36,14 @@ function Login() {
         navigate('/home');
       } else {
         setError(result.message || 'Login failed');
+        console.log(error)
         alert(result.message);
       }
     } catch (err) {
       setError('An error occurred while logging in.');
       console.error(err);
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 

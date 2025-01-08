@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { apiURL } from '@/utils/baseurl';
 export interface User {
   id: number;
     username: string;
@@ -16,7 +16,7 @@ export interface User {
 
 export const currentUser = async (token:string): Promise<User> => {
   try {
-    const response = await axios.get('http://localhost:5000/api/users/current-user', {
+    const response = await axios.get(apiURL+'users/current-user', {
         headers: {
           Authorization: `Bearer ${token}`,  
         },

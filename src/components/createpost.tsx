@@ -1,21 +1,13 @@
 import {
-  Input,
+ 
   Container,
-  Text,
-  Button,
-  Flex,
-  Stack,
-  Box,
-  Color,
-  Textarea,
-  useDisclosure,
+ 
 } from "@chakra-ui/react";
-import { FaUpload } from 'react-icons/fa';
 import { useForm } from "react-hook-form";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useState } from "react";
-import { createThread } from "@/features/createthread";
-import data_img from "../assets/images.jpeg";
+import { createThread } from "@/features/thread/createthread";
+
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 const threadSchema = z.object({
@@ -26,17 +18,17 @@ const threadSchema = z.object({
 type ThreadData = z.infer<typeof threadSchema>;
 export function CreatePost() {
   const { token } = useAuthStore();
-  const [preview, setPreview] = useState<string | null>(null);
+  const [, setPreview] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
-    watch,
+    
     formState: { errors },
   } = useForm<ThreadData>({
     resolver: zodResolver(threadSchema),
   });
-  const contentValue = watch("content", "");
-  const imageValue = watch("image");
+  // const contentValue = watch("content", "");
+  // const imageValue = watch("image");
   const onSubmit = async (data: any) => {
     console.log(data);
     if (!token) {

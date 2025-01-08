@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { User } from './currentUser';
-
+import { apiURL } from '@/utils/baseurl';
 export const profilePage = async (token:string, username:string): Promise<User> => {
   try {
     const response = await axios.get(
-      `http://localhost:5000/api/users/${username}`,
+      apiURL+`users/${username}`,
       {
         headers: {
           'Authorization':`Bearer ${token}`

@@ -1,45 +1,21 @@
 import {
-  Input,
+  
   Image,
-  Container,
+  
   Text,
   Flex,
-  Stack,
   Box,
-  Color,
-  Textarea,
-  useDisclosure,
+ 
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
-import { currentUser } from "@/features/currentUser";
-import { updateUser } from "@/features/updateuser";
-import { Button } from "@/components/ui/button";
-import {
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
-  DialogTitle,
-  DialogTrigger,
-  DialogActionTrigger,
-} from "@/components/ui/dialog";
+import  { useEffect } from "react";
+import { currentUser } from "@/features/users/currentUser";
+
 import EditProfile from "./editprofile";
 import useAuthStore from "../hooks/newAuthStore";
 import data_img from "../assets/images.jpeg";
 
 function ProfileSidebar() {
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [coverPicPreview, setCoverPicPreview] = useState<string | null>(null);
-  const [username, setUsername] = useState<string>("");
-  const [fullName, setFullName] = useState<string>("");
-  const [bio, setBio] = useState<string>("");
-  const [avatar, setAvatar] = useState<File | null>(null);
-  const [coverPic, setCoverPic] = useState<File | null>(null);
-  const [initialValues, setInitialValues] = useState<any | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
+ 
   const { user, setUser, token } = useAuthStore();
 
   // const avatar = watch("avatar");

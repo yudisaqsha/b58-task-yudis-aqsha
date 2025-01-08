@@ -1,19 +1,19 @@
 import {
   Input,
-  Container,
+ 
   Text,
   Flex,
   Stack,
   Box,
-  Color,
+  
   Image,
   Textarea,
   Spinner,
-  useDisclosure,
+  
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { currentUser } from "@/features/currentUser";
-import { updateUser } from "@/features/updateuser";
+import { currentUser } from "@/features/users/currentUser";
+import { updateUser } from "@/features/users/updateuser";
 import { Button } from "@/components/ui/button";
 import {
   DialogBody,
@@ -58,11 +58,14 @@ function EditProfile() {
           setBio(userData.bio || "");
           setAvatarPreview(userData.avatar);
           setCoverPicPreview(userData.coverPic);
-        } catch (error) {
-          console.error("Error fetching user data:", error);
+        } catch (err) {
+          console.error("Error fetching user data:", err);
+          console.log(errorMessage)
+          
         }
       } else {
         console.log("No token found");
+        
       }
     };
 

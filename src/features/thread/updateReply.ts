@@ -1,9 +1,11 @@
-import { Comment } from './getcomment';  
+import { apiURL } from '@/utils/baseurl';
+import { Comment } from './thread/getcomment';  
 import axios from 'axios';
+
 
 export const updateReply = async (token:string,formData: FormData,threadId:string,commentId:string): Promise<{ message: string, comment:Comment }> => {
   try {
-    const response = await axios.put(`http://localhost:5000/api/thread/${threadId}/comment/${commentId}/update`, formData, {
+    const response = await axios.put(apiURL+`thread/${threadId}/comment/${commentId}/update`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data', 

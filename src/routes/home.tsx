@@ -1,21 +1,15 @@
 import {
-  Input,
-  Container,
-  Text,
-  Button,
+  
   Flex,
   Stack,
-  Box,
+ 
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
-import data_img from "../assets/images.jpeg";
+
 import Sidebar from "../components/sidebar";
 import AddPost from "@/components/addpost";
 import ProfileSidebar from "@/components/profilesidebar";
 import SuggestedFollow from "@/components/suggestedfollow";
-import useAuthStore from '../hooks/newAuthStore';
-import {useLocation } from 'react-router-dom';
-import React, { useEffect } from "react";
+
 function Home() {
   return (
     <Flex overflowY={"auto"} scrollBehavior={"smooth"} height={"100vh"}>

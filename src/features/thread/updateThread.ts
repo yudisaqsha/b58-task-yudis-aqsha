@@ -1,9 +1,11 @@
-import { Thread } from './fetchallthread';  
+import { apiURL } from '@/utils/baseurl';
+import { Thread } from './thread/fetchallthread';  
 import axios from 'axios';
+
 
 export const updateThread = async (token:string,formData: FormData,id:number): Promise<{ message: string, thread:Thread }> => {
   try {
-    const response = await axios.put(`http://localhost:5000/api/thread/${id}/edit`, formData, {
+    const response = await axios.put(apiURL+`thread/${id}/edit`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data', 

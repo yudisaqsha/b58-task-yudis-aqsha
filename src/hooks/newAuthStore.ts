@@ -1,15 +1,11 @@
 import {create} from "zustand";
-import {jwtDecode} from "jwt-decode";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { User } from "@/features/currentUser";
-import { Thread } from "@/features/fetchallthread";
-import { likeThread } from "@/features/likefunction";
-import { followFunction } from "@/features/followfunction";
-import { fetchFollowing } from "@/features/fetchfollowing";
-import { getSuggested } from "@/features/suggesteduser";
-import { Comment } from "@/features/getcomment";
-import { string } from "zod";
+
+import { User } from "@/features/users/currentUser";
+import { Thread } from "@/features/thread/fetchallthread";
+import { likeThread } from "@/features/like/likefunction";
+
+import { Comment } from "@/features/thread/getcomment";
+
 interface MyState {
   user:User|null
   loggedIn : User |null
@@ -54,7 +50,7 @@ interface LikeState {
   initializeLikeState: (threadId: number, isLiked: boolean, count: number) => void;
 }
 
-export const useLikeStore = create<LikeState>((set, get) => ({
+export const useLikeStore = create<LikeState>((set) => ({
   likedThreads: {},
   likeCounts: {},
   loading: {},

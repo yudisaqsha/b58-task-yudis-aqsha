@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { apiURL } from '@/utils/baseurl';
 interface RegisterResponse {
   user?: {
     id: number;
@@ -19,7 +19,7 @@ export const registerUser = async (
 ): Promise<RegisterResponse> => {
   try {
     const response = await axios.post(
-      'http://localhost:5000/api/auth/register',
+      apiURL+'auth/register',
       {
         fullName,
         username,

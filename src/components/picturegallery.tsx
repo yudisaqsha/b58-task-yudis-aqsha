@@ -1,20 +1,18 @@
 import {
-  Input,
-  Container,
+ 
   Text,
-  Button,
+  
   Flex,
-  IconButton,
-  Stack,
+  
   Box,
-  Color,
+  
   Image,
   Grid,
   Spinner,
 } from "@chakra-ui/react";
 
-import { fetchProfileThreads } from "@/features/profilethread";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { fetchProfileThreads } from "@/features/thread/profilethread";
+import { useLocation, Link } from "react-router-dom";
 import useAuthStore from "@/hooks/newAuthStore";
 
 import { useEffect, useState } from "react";
@@ -23,9 +21,9 @@ interface ProfileHeaderProps {
   username?: string;
 }
 function ProfileGallery({ username }: ProfileHeaderProps) {
-  const { threads, setAllThread, token, setThread } = useAuthStore();
+  const { threads, setAllThread, token,  } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+ 
   const [loading, setLoading] = useState<boolean>(false);
   const location = useLocation();
 

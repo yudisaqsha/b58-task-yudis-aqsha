@@ -1,5 +1,5 @@
 import {
-  Input,
+  
   Container,
   Text,
   Button,
@@ -8,33 +8,24 @@ import {
   Box,
   Textarea,
   Spinner,
-  IconButton,
-  HStack,
+  
   Image,
 } from "@chakra-ui/react";
 import { Link, useParams } from "react-router-dom";
 import data_img from "../assets/images.jpeg";
-import { Comment, fetchComment } from "@/features/getcomment";
+import {  fetchComment } from "@/features/thread/getcomment";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useState, useEffect } from "react";
-import { fetchThreadsbyId } from "@/features/threadbyid";
-import { FaUpload, FaImage } from "react-icons/fa";
-import { User, currentUser } from "@/features/currentUser";
+import { fetchThreadsbyId } from "@/features/thread/threadbyid";
+import {  FaImage } from "react-icons/fa";
+import { currentUser } from "@/features/users/currentUser";
 import LikeButton from "@/components/LikeButton";
 import EditThread from "@/components/updatethreaddialog";
 import DeleteThread from "@/components/deletethread";
 import EditReply from "@/components/updateReplyDialog";
 import DeleteReply from "@/components/deletereply";
-import { addReply } from "@/features/addreply";
-import {
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogRoot,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { addReply } from "@/features/thread/addreply";
+import FollowButton from "./followbutton";
 
 function ImageDetail() {
   const {id} = useParams()
@@ -64,6 +55,7 @@ function ImageDetail() {
         } catch (err) {
           setError("User not found or error occurred");
           console.error("Error fetching user data:", err);
+          console.log(error)
         }
         finally {
           setLoading(false); 
@@ -149,8 +141,9 @@ function ImageDetail() {
             <Flex mx={10} gap={0}justifyContent={"center"} alignContent={"center"}>
               <Image
                 src={thread?.image}
-                width={"100%"}
+                width={"35%"}
                 my={"100px"}
+                mx={10}
                 height={"auto"}
               />
               <Stack
@@ -241,6 +234,7 @@ function ImageDetail() {
                           </Button>
                         </Flex>
                       </Flex>
+                      {user && thread.author.id !== user.id && (<><Box ml={4}><FollowButton userId={thread.author.id} currentUserId={user.id}/></Box></>)}
                       {thread.author.id === user?.id && (
                         <Flex justifyContent={"end"} width={"60%"}>
                           <EditThread threadId={Number(id)} />

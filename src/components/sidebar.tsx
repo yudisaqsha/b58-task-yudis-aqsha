@@ -1,26 +1,25 @@
 import {
-  Input,
+ 
   Container,
-  Text,
+  
   Button,
   Textarea,
   Flex,
   Stack,
   Box,
   Spinner,
-  useDisclosure,
+  
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { useAuth } from "../hooks/authcontext";
+
 import { useEffect } from "react";
 import useAuthStore from "@/hooks/newAuthStore";
-import { FaUpload, FaImage } from "react-icons/fa";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { currentUser, User } from "@/features/currentUser";
-import { createThread } from "@/features/createthread";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {  FaImage } from "react-icons/fa";
+
+import { currentUser, User } from "@/features/users/currentUser";
+import { createThread } from "@/features/thread/createthread";
+
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -33,7 +32,7 @@ import {
   DialogActionTrigger,
 } from "@/components/ui/dialog";
 import data_img from "../assets/images.jpeg";
-import { fetchThreads } from "@/features/fetchallthread";
+import { fetchThreads } from "@/features/thread/fetchallthread";
 function Sidebar() {
   const { token, setAllThread, logout } = useAuthStore();
   const [loggedin, setLoggedIn] = useState<User>();

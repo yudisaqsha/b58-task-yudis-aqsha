@@ -1,10 +1,11 @@
 import axios from "axios";
+import { apiURL } from "@/utils/baseurl";
 interface LikeThreadResponse {
   message: string;
 }
 export const likeThread = async (token: string, id: number):Promise<LikeThreadResponse> => {
     try {
-      const response = await axios.post(`http://localhost:5000/api/thread/${id}/like`, null, {
+      const response = await axios.post(apiURL+`thread/${id}/like`, null, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data; 

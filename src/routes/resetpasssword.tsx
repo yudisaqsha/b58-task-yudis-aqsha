@@ -1,7 +1,7 @@
-import { Input, Container, Text, Button, Flex } from "@chakra-ui/react";
-import { useForm, SubmitHandler, FieldValues } from "react-hook-form";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Input, Container,  Button, Flex } from "@chakra-ui/react";
+import { useForm, SubmitHandler } from "react-hook-form";
+
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 const schema = z

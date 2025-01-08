@@ -1,15 +1,14 @@
 import axios from "axios";
-
-export const followFunction = async (token: string, userId: number) => {
+import { apiURL } from "@/utils/baseurl";
+export const deleteReply = async (token: string,threadId: number,commentId:number) => {
     try {
-      const response = await axios.post(`http://localhost:5000/api/users/toggle-follow`, {userId:userId}, {
+      const response = await axios.delete(apiURL+`thread/${threadId}/comment/${commentId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
-      return response.data.message
+      return response.data; 
     } catch (error: any) {
       if (error.response) {
-        throw new Error(error.response.data.message || 'Failed to toggle follow');
+        throw new Error(error.response.data.message || 'Failed to Delete');
       } else if (error.request) {
         throw new Error('No response from server. Please try again later.');
       } else {

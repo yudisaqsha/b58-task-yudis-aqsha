@@ -1,9 +1,10 @@
 import axios from 'axios';
+import { apiURL } from '@/utils/baseurl';
 import { Comment } from './getcomment';
 
 export const addReply = async (token:string,id:string,formData:FormData): Promise<{ message: string, comment: Comment }> => {
     try {
-      const response = await axios.post(`http://localhost:5000/api/thread/${id}/addcomment`, formData, {
+      const response = await axios.post(apiURL+`thread/${id}/addcomment`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data', 

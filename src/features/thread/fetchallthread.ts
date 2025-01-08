@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { apiURL } from '@/utils/baseurl';
 export interface Author {
   id:number
   username: string;
@@ -20,7 +21,7 @@ export interface Thread {
 
 export const fetchThreads = async (token: string): Promise<Thread[]> => {
   try {
-    const response = await axios.get('http://localhost:5000/api/thread', {
+    const response = await axios.get(apiURL+'thread', {
         headers: {
           Authorization: `Bearer ${token}`,  
         },

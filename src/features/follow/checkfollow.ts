@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { Follow } from './fetchfollowing';
-
+import { apiURL } from '@/utils/baseurl';
 
 export interface FollowResponse {
     isFollowing: boolean;
@@ -13,7 +12,7 @@ export interface FollowResponse {
   
 export const checkFollow = async (token:string, userId:number,id:number) => {
   try {
-    const response = await axios.get(`http://localhost:5000/api/users/${id}/checkfollow?userId=${userId}`, {
+    const response = await axios.get(apiURL+`users/${id}/checkfollow?userId=${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,  
         },

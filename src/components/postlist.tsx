@@ -1,33 +1,30 @@
 import {
-  Input,
+  
   Container,
   Text,
   Button,
   Flex,
-  IconButton,
-  Stack,
+  
   Box,
-  Color,
-  Image,
+  
 } from "@chakra-ui/react";
-import  axios  from "axios";
-import { Link, useNavigate ,useLocation} from "react-router-dom";
+
+import { Link} from "react-router-dom";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useState, useEffect } from "react";
 import data_img from "../assets/images.jpeg";
-import { useLikeStore } from "../hooks/likebutton";
-import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
-import { Thread,fetchThreads } from "@/features/fetchallthread";
+
+import { fetchThreads } from "@/features/thread/fetchallthread";
 import FollowButton from "./followbutton";
 import LikeButton from "./LikeButton";
-import { User, currentUser } from "@/features/currentUser";
+import { User, currentUser } from "@/features/users/currentUser";
 function PostList() {
   const {threads, setAllThread, token } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
   const [loggedin, setLoggedin] = useState<User>()
   
   // const [likedThreads, setLikedThreads] = useState<Set<number>>(new Set());
-  const [loading, setLoading] = useState(true);
+  
   
   // const { posts, likedPosts, likePost } = useAuthStore((state) => state);
  
@@ -38,7 +35,7 @@ function PostList() {
         return;
       }
 
-      setLoading(true);  
+        
       setError(null);     
 
       try {
@@ -49,9 +46,8 @@ function PostList() {
         console.log(fetchedThreads)
       } catch (err) {
         setError('Failed to load threads');  
-      } finally {
-        setLoading(false); 
-      }
+        console.log(error)
+      } 
     };
 
     loadThreads(); 

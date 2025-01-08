@@ -1,8 +1,9 @@
 import axios from "axios";
-import { User } from "./currentUser";
+import { User } from "../users/currentUser";
+import { apiURL } from "@/utils/baseurl";
 export const fetchFollower= async (token: string, id:number)=> {
     try {
-      const response = await axios.get(`http://localhost:5000/api/users/followers/${id}`, {
+      const response = await axios.get(apiURL+`users/followers/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,  
           },

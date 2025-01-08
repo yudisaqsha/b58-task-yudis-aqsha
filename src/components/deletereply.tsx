@@ -1,22 +1,22 @@
 import {
     Button,
   } from "@chakra-ui/react";
-  import { useEffect, useState } from "react";
-  import { deleteReply } from "@/features/deletereply";
-  import { fetchComment } from "@/features/getcomment";
+  import {  useState } from "react";
+  import { deleteReply } from "@/features/thread/deletereply";
+  import { fetchComment } from "@/features/thread/getcomment";
   import useAuthStore from "@/hooks/newAuthStore";
-  import { useNavigate } from "react-router-dom";
+  
   interface DeleteThreadProps {
     threadId: number;
     commentId:number
   }
   
   function DeleteReply({ threadId,commentId }: DeleteThreadProps) {
-    const { token, setAllThread,setComments } = useAuthStore();
+    const { token, setComments } = useAuthStore();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const navigate = useNavigate();
+    
     const handleDelete = async () => {
       setLoading(true);
       setError(null);
@@ -28,9 +28,11 @@ import {
         const result = await deleteReply(token, threadId,commentId);
         setSuccessMessage(result.message);
       } catch (err: any) {
-        setError(err.message); // Set error message
+        setError(err.message);
+        console.error(error) // Set error message
       } finally {
         setLoading(false);
+        console.log(successMessage)
         alert("Thread Deleted")
         const thread = await fetchComment(token, String(threadId));
         setComments(thread)

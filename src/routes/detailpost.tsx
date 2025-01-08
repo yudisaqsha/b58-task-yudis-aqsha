@@ -1,5 +1,5 @@
 import {
-  Input,
+  
   Container,
   Text,
   Button,
@@ -8,32 +8,32 @@ import {
   Box,
   Textarea,
   Spinner,
-  IconButton,
+ 
 } from "@chakra-ui/react";
 import data_img from "../assets/images.jpeg";
 import { Link, useLocation } from "react-router-dom";
 import Sidebar from "@/components/sidebar";
 import ProfileSidebar from "@/components/profilesidebar";
-import PostList from "@/components/postlist";
+
 import SuggestedFollow from "@/components/suggestedfollow";
 import { useParams } from "react-router-dom";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useState, useEffect } from "react";
-import { fetchThreadsbyId } from "@/features/threadbyid";
-import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
-import { Thread } from "@/features/fetchallthread";
-import { Comment, fetchComment } from "@/features/getcomment";
+import { fetchThreadsbyId } from "@/features/thread/threadbyid";
+
+import { Thread } from "@/features/thread/fetchallthread";
+import { fetchComment } from "@/features/thread/getcomment";
 import FollowButton from "@/components/followbutton";
-import { addReply } from "@/features/addreply";
-import { z } from "zod";
-import { FaUpload, FaImage } from "react-icons/fa";
-import { User, currentUser } from "@/features/currentUser";
+import { addReply } from "@/features/thread/addreply";
+
+import { FaImage } from "react-icons/fa";
+import { User, currentUser } from "@/features/users/currentUser";
 import LikeButton from "@/components/LikeButton";
 import EditThread from "@/components/updatethreaddialog";
 import DeleteThread from "@/components/deletethread";
 import EditReply from "@/components/updateReplyDialog";
 import DeleteReply from "@/components/deletereply";
-import ImageDetail from "@/components/imagedetail";
+
 function DetailPost() {
   const { id } = useParams();
   const { token ,comments, setComments  } = useAuthStore(
@@ -66,6 +66,7 @@ function DetailPost() {
         } catch (err) {
           setError("User not found or error occurred");
           console.error("Error fetching user data:", err);
+          console.log(error)
         }
       }
     };

@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { apiURL } from '@/utils/baseurl';
 interface LoginResponse {
   token?: string;
   message?: string;
@@ -8,7 +8,7 @@ interface LoginResponse {
 export const loginUser = async (username: string, password: string): Promise<LoginResponse> => {
   try {
     const response = await axios.post(
-      'http://localhost:5000/api/auth/login',
+      apiURL+'auth/login',
       {
         username,
         password,

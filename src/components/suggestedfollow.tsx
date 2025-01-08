@@ -10,8 +10,8 @@ import {
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import data_img from "../assets/images.jpeg";
-import { User, currentUser } from "@/features/currentUser";
-import { getSuggested } from "@/features/suggesteduser";
+import { User, currentUser } from "@/features/users/currentUser";
+import { getSuggested } from "@/features/follow/suggesteduser";
 import React, { useEffect, useState } from "react";
 import useAuthStore, { } from "@/hooks/newAuthStore";
 
