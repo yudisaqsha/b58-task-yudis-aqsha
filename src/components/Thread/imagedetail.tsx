@@ -10,7 +10,7 @@ import {
   Image,
 } from "@chakra-ui/react";
 import { Link, useParams } from "react-router-dom";
-import data_img from "../assets/images.jpeg";
+import data_img from "@/assets/images.jpeg";
 import { fetchComment } from "@/features/thread/getcomment";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useState, useEffect } from "react";

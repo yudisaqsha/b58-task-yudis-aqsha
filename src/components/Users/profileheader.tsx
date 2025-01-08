@@ -2,7 +2,7 @@ import { Image, Text, Flex, Box } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 
 import useAuthStore from "../../hooks/newAuthStore";
-import data_img from "../assets/images.jpeg";
+import data_img from "@/assets/images.jpeg";
 import FollowButton from "../Follow/followbutton";
 import { profilePage } from "@/features/users/profilepageuser";
 import { currentUser } from "@/features/users/currentUser";

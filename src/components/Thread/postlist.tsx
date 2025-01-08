@@ -12,7 +12,7 @@ import {
 import { Link} from "react-router-dom";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useState, useEffect } from "react";
-import data_img from "../assets/images.jpeg";
+import data_img from "@/assets/images.jpeg";
 
 import { fetchThreads } from "@/features/thread/fetchallthread";
 import FollowButton from "../Follow/followbutton";

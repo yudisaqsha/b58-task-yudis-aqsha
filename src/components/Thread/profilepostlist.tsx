@@ -10,7 +10,7 @@ import {
   import { fetchProfileThreads } from "@/features/thread/profilethread";
   import { Link, useLocation } from "react-router-dom";
   import useAuthStore from "@/hooks/newAuthStore";
-  import data_img from "../assets/images.jpeg";
+  import data_img from "@/assets/images.jpeg";
   import { useEffect,useState } from "react";
   import LikeButton from "./LikeButton";
   interface ProfileHeaderProps {

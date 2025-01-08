@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 
 // const imageContext = require.context('../assets', false, /\.(jpg|jpeg|png)$/);
-import data_img from "../assets/images.jpeg";
+import data_img from "@/assets/images.jpeg";
 import PostList from "./postlist";
 import { FaImage } from "react-icons/fa";
 

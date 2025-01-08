@@ -29,7 +29,7 @@ import {
   DialogTrigger,
   DialogActionTrigger,
 } from "@/components/ui/dialog";
-import data_img from "../assets/images.jpeg";
+import data_img from "@/assets/images.jpeg";
 import { fetchThreads } from "@/features/thread/fetchallthread";
 function Sidebar() {
   const { token, setAllThread, logout } = useAuthStore();

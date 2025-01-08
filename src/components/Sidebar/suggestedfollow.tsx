@@ -1,6 +1,6 @@
 import { Container, Text, Flex, Box } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import data_img from "../assets/images.jpeg";
+import data_img from "@/assets/images.jpeg";
 import { currentUser } from "@/features/users/currentUser";
 import { User } from "@/types/user";
 import { getSuggested } from "@/features/follow/suggesteduser";

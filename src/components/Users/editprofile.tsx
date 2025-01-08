@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 
 import useAuthStore from "../../hooks/newAuthStore";
-import data_img from "../assets/images.jpeg";
+import data_img from "@/assets/images.jpeg";
 
 function EditProfile() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);

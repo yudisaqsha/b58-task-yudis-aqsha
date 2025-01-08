@@ -1,7 +1,7 @@
 import { Input, Container, Text, Flex, Stack } from "@chakra-ui/react";
-import data_img from "../assets/images.jpeg";
+import data_img from "@/assets/images.jpeg";
 import { Link } from "react-router-dom";
-import Sidebar from "../components/Sidebar/sidebar";
+import Sidebar from "@/components/Sidebar/sidebar";
 import { useState, useEffect } from "react";
 import debounce from "lodash/debounce";
 import { searchBar } from "@/features/users/searchuser";
