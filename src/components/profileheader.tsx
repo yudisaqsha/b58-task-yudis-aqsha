@@ -1,6 +1,7 @@
 import {
   Input,
   Container,
+  Image,
   Text,
   Flex,
   Stack,
@@ -11,37 +12,21 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Link } from "react-router-dom";
+
 import useAuthStore from "../hooks/newAuthStore";
 import data_img from "../assets/images.jpeg";
-import { useNavigate, useParams } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { profilePage } from "@/api/profilepageuser";
-import { User, currentUser } from "@/api/currentUser";
-import { updateUser } from "@/api/updateuser";
+import FollowButton from "./followbutton";
+import { profilePage } from "@/features/profilepageuser";
+import { User, currentUser } from "@/features/currentUser";
+import { updateUser } from "@/features/updateuser";
 import EditProfile from "./editprofile";
 interface ProfileHeaderProps {
   username?: string;
 }
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({ username }) => {
-  
-  const [loggedIn, setLoggedin] = useState<User | null>(null);
-  const { token,user, setUser } = useAuthStore();
+  const [loggedIn, setLoggedin] = useState<User>();
+  const { token, user, setUser } = useAuthStore();
   // const { user: loggedInUser } = useAuthStore((state) => state)
-
-  
 
   const [error, setError] = useState("");
 
@@ -55,7 +40,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ username }) => {
           setLoggedin(loginuser);
           console.log(data);
           console.log(loginuser);
-         
         } catch (err) {
           setError("User not found or error occurred");
           console.error("Error fetching user data:", err);
@@ -68,7 +52,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ username }) => {
     }
   }, [username, token, setLoggedin, setUser]);
 
-  
   return (
     <Box backgroundColor="#262626" borderRadius={"2xl"}>
       <h5 style={{ color: "white", marginTop: "25px", marginLeft: "25px" }}>
@@ -76,13 +59,23 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ username }) => {
       </h5>
 
       <Box position={"relative"} mt={5}>
-        <Box
-          borderRadius={10}
-          height={"100px"}
-          width={"90%"}
-          m={"auto"}
-          backgroundColor={"white"}
-        ></Box>
+        {user?.coverPic ? (
+          <Image
+            src={user.coverPic}
+            borderRadius={10}
+            height={"100px"}
+            width={"90%"}
+            m={"auto"}
+          />
+        ) : (
+          <Box
+            borderRadius={10}
+            height={"100px"}
+            width={"90%"}
+            m={"auto"}
+            background={"white"}
+          ></Box>
+        )}
         <Box
           borderRadius={"100%"}
           borderWidth={2}
@@ -106,21 +99,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ username }) => {
         </Box>
       </Box>
 
-      <Flex mr={5} justifyContent={"end"}>
-        {user?.id === loggedIn?.id && (
-          <EditProfile/>
-        )}
-        {user?.id != loggedIn?.id && (
-          <Button
-            borderWidth={"2"}
-            borderColor={"white"}
-            mt={3}
-            borderRadius={"3xl"}
-            background={"none"}
-          >
-            Follow{" "}
-          </Button>
-        )}
+      <Flex mr={8} justifyContent={"end"}>
+        {user?.id === loggedIn?.id ? (<EditProfile/>) :loggedIn  && (<><Box mt={3}><FollowButton userId={Number(user?.id)} currentUserId={loggedIn.id}/></Box></>  ) }
+        
       </Flex>
       <Box ml="25px">
         <Text color={"white"}>

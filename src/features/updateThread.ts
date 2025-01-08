@@ -1,4 +1,4 @@
-import { Thread } from '../api/fetchallthread';  
+import { Thread } from './fetchallthread';  
 import axios from 'axios';
 
 export const updateThread = async (token:string,formData: FormData,id:number): Promise<{ message: string, thread:Thread }> => {

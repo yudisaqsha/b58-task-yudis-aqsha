@@ -7,6 +7,7 @@ import {
   Flex,
   Stack,
   Box,
+  Spinner,
   useDisclosure,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
@@ -17,8 +18,8 @@ import useAuthStore from "@/hooks/newAuthStore";
 import { FaUpload, FaImage } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { currentUser } from "@/api/currentUser";
-import { createThread } from "@/api/createthread";
+import { currentUser, User } from "@/features/currentUser";
+import { createThread } from "@/features/createthread";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   DialogBody,
@@ -29,73 +30,95 @@ import {
   DialogRoot,
   DialogTitle,
   DialogTrigger,
+  DialogActionTrigger,
 } from "@/components/ui/dialog";
 import data_img from "../assets/images.jpeg";
-const threadSchema = z.object({
-  content: z.string().min(1, { message: "Content is required" }),
-
-  image: z.instanceof(FileList).optional(), // Optional file input
-});
-
-type ThreadData = z.infer<typeof threadSchema>;
-
+import { fetchThreads } from "@/features/fetchallthread";
 function Sidebar() {
-  const { token, loggedIn, setLoggedin } = useAuthStore();
-  const { logout } = useAuthStore();
+  const { token, setAllThread, logout } = useAuthStore();
+  const [loggedin, setLoggedIn] = useState<User>();
   const [preview, setPreview] = useState<string | null>(null);
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<ThreadData>({
-    resolver: zodResolver(threadSchema),
-  });
-  useEffect(() => {
-    const getUserData = async () => {
-      if (token) {
-        try {
-          const loginuser = await currentUser(token);
-          setLoggedin(loginuser);
+  const [isLoading, setIsLoading] = useState(false);
+  const [content, setContent] = useState<string>("");
+  const [image, setImage] = useState<File | null>(null);
 
-          console.log(loginuser);
-        } catch (err) {
-          console.error("Error fetching user data:", err);
-        }
-      }
-    };
+  const onContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value);
+  };
 
-    getUserData();
-  }, [token, setLoggedin]);
-
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-  const onSubmit = async (data: any) => {
-    console.log(data);
+  const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setImage(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+  const onSubmit = async () => {
     if (!token) {
       console.log("You're not logged in");
       return;
     }
     const formData = new FormData();
-    formData.append("content", data.content);
+    formData.append("content", content);
 
-    if (data.image[0]) {
-      formData.append("image", data.image[0]);
-      setPreview(data.image);
+    if (image) {
+      formData.append("image", image);
     }
+
+    setIsLoading(true);
 
     try {
       const response = await createThread(token, formData);
       console.log(response.thread);
+      const listThread = await fetchThreads(token);
+      setAllThread(listThread);
       alert("Thread Uploaded");
-      window.location.reload();
+      setContent("");
+      setImage(null);
     } catch (error) {
       console.error("Error updating user:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      if (token) {
+        try {
+          const userData = await currentUser(token);
+          setLoggedIn(userData);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      } else {
+        console.log("No token found");
+      }
+    };
+
+    getCurrentUser();
+  }, [token, setLoggedIn]);
+
+  const isPostDisabled = !(content || image);
 
   return (
-    <Stack
+    <>
+     {isLoading && (
+            <Box
+              position="fixed"
+              top={0}
+              left={0}
+              width="100%"
+              height="100%"
+              backgroundColor="rgba(0, 0, 0, 0.5)"
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              zIndex={9999}
+            >
+              <Spinner size="xl" color="white" />
+            </Box>
+          )}
+     <Stack
       position={"fixed"}
       borderRightWidth={2}
       height={"full"}
@@ -178,7 +201,7 @@ function Sidebar() {
           </Link>
 
           <Link
-            to={`/profile/${loggedIn?.username}`}
+            to={`/profile/${loggedin?.username}`}
             style={{ textDecoration: "none" }}
           >
             <Flex gap={3} mt={4}>
@@ -253,14 +276,14 @@ function Sidebar() {
                     mx={"auto"}
                   >
                     <form
-                      onSubmit={handleSubmit(onSubmit)}
-                      style={{ width: "90%" }}
+                      onSubmit={onSubmit}
                       encType="multipart/form-data"
+                      style={{ width: "90%" }}
                     >
                       <Flex gap={5}>
                         {" "}
                         <img
-                          src={data_img}
+                          src={loggedin?.avatar ? loggedin.avatar : data_img}
                           style={{
                             borderRadius: "100%",
                             width: "40px",
@@ -275,42 +298,43 @@ function Sidebar() {
                           height={"200px"}
                           placeholder="What is happening?!"
                           color={"white"}
-                          {...register("content")}
+                          value={content}
+                          required
+                          onChange={onContentChange}
                         />
-                        {errors.content && <p>{errors.content.message}</p>}
-                        <div>
-                          <label htmlFor="image" className="upload-label">
-                            <input
-                              {...register("image")}
-                              type="file"
-                              id="image"
-                              accept="image/png, image/jpeg"
-                              style={{ display: "none" }}
-                            />
-                            <FaImage size={30} color="green" />
-                          </label>
-                          {preview && (
-                            <img
-                              src={preview}
-                              alt="image preview"
-                              width={100}
-                            />
-                          )}
-                        </div>
+                        <Flex direction={"column"} gap={"2"}></Flex>
                       </Flex>
+                      {preview && (
+                        <img src={preview} alt="image preview" width={400} />
+                      )}
                     </form>
                   </Container>
                 </DialogBody>
                 <DialogFooter>
-                  <Button
-                    backgroundColor={"green"}
-                    rounded={"2xl"}
-                    color={"white"}
-                    type="submit"
-                    onClick={handleSubmit(onSubmit)}
-                  >
-                    Post
-                  </Button>
+                  <div>
+                    <label htmlFor="image" className="upload-label">
+                      <input
+                        type="file"
+                        id="image"
+                        accept="image/png, image/jpeg"
+                        style={{ display: "none" }}
+                        onChange={onImageChange}
+                      />
+                      <FaImage size={30} color="green" />
+                    </label>
+                  </div>
+                  <DialogActionTrigger marginRight={"10%"}>
+                    <Button
+                      backgroundColor={"green"}
+                      rounded={"2xl"}
+                      color={"white"}
+                      type="submit"
+                      onClick={onSubmit}
+                      disabled={isPostDisabled || isLoading} // Disable when no content/image or during loading
+                    >
+                      Post
+                    </Button>
+                  </DialogActionTrigger>
                 </DialogFooter>
                 <DialogCloseTrigger />
               </DialogContent>
@@ -357,6 +381,8 @@ function Sidebar() {
         </Flex>
       </Container>
     </Stack>
+    </>
+   
   );
 }
 export default Sidebar;

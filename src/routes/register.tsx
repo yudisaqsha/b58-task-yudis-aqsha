@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 // import { useAuth } from "@/hooks/authcontext";
 // import useAuthStore from "@/hooks/useAuthStore";
 import  useAuthStore  from "@/hooks/newAuthStore";
-import { registerUser } from "@/api/registerapi";
+import { registerUser } from "@/features/registerapi";
 const schema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   email: z.string().email("Invalid email format").min(1, "Email is required"),

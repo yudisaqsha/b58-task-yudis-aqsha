@@ -10,26 +10,32 @@ import {
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import data_img from "../assets/images.jpeg";
-import { User } from "@/api/currentUser";
-import { getSuggested } from "@/api/suggesteduser";
+import { User, currentUser } from "@/features/currentUser";
+import { getSuggested } from "@/features/suggesteduser";
 import React, { useEffect, useState } from "react";
-import useAuthStore, { useFollowStore } from "@/hooks/newAuthStore";
+import useAuthStore, { } from "@/hooks/newAuthStore";
+
 import  FollowButton  from "./followbutton";
 
 function SuggestedFollow() {
-  const [user, setUser] = useState<User[] | null>(null);
   const { token } = useAuthStore();
-  const { suggestedUsers, fetchSuggestedUsers, isLoading, fetchFollowed } =
-    useFollowStore();
-    const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  // const { suggestedUsers, fetchSuggestedUsers, isLoading, fetchFollowed } =
+  //   useFollowStore();
+  const [suggestedUsers, setSuggestedUsers] = useState<User[]>()
+  const [loggedIn, setLoggedin] = useState<User>()
+  
 
   useEffect(() => {
-    if (token) {
-      fetchSuggestedUsers(token)
-      fetchFollowed(token);
+    const fetchSuggested = async ()=>{
+      if (token) {
+        const listSuggested = await getSuggested(token)
+        const loggedin = await currentUser(token)
+        setSuggestedUsers(listSuggested)
+        setLoggedin(loggedin)
+      }
     }
-  }, [token]);
+    fetchSuggested()
+  }, [token, setSuggestedUsers, setLoggedin]);
   return (
     <Box
       backgroundColor="#262626"
@@ -69,10 +75,12 @@ function SuggestedFollow() {
                   </Flex>
                 </Link>
                 <Flex justifyContent={"end"} width={"70%"}>
-                  {" "}
-                  <FollowButton
+                  {loggedIn && <FollowButton
                     userId={x.id}
-                  />
+                    currentUserId={loggedIn.id}
+                  />}
+                  {" "}
+                  {/*  */}
                 </Flex>
               </Flex>
             );

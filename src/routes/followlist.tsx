@@ -17,25 +17,44 @@ import ProfileSidebar from "../components/profilesidebar";
 import PostList from "@/components/postlist";
 import SuggestedFollow from "@/components/suggestedfollow";
 import { LuCheckSquare, LuFolder, LuUser } from "react-icons/lu";
-interface followsuggest {
-  name: string;
-  username: string;
-}
-const listFollow: followsuggest[] = [
-  {
-    name: "Name1",
-    username: "username1",
-  },
-  {
-    name: "Name2",
-    username: "username2",
-  },
-  {
-    name: "Name1",
-    username: "username2",
-  },
-];
+import {Follow, fetchFollowing } from "@/features/fetchfollowing";
+import { fetchFollower } from "@/features/fetchfollowers";
+import useAuthStore from "@/hooks/newAuthStore";
+import { User, currentUser } from "@/features/currentUser";
+import { useEffect, useState } from "react";
+import FollowButton from "@/components/followbutton";
 function FollowList() {
+  const {token, user, setUser} = useAuthStore()
+  const [error, setError] = useState("");
+  const [following, setFollowingList] = useState<any[]>()
+  const [followers,setFollowersList] = useState<any[]>()
+
+  useEffect(() => {
+      const getUserData = async () => {
+        if (token) {
+          try {
+            
+            const loginuser = await currentUser(token);
+            const followers = await fetchFollower(token,loginuser.id)
+            const following = await fetchFollowing(token,loginuser.id)
+            setUser(loginuser);
+            setFollowersList(followers)
+            setFollowingList(following)
+            console.log(followers)
+            console.log(following)
+           
+          } catch (err) {
+            setError("User not found or error occurred");
+            console.error("Error fetching user data:", err);
+          }
+        }
+      };
+  
+      if ( token) {
+        getUserData();
+      }
+    }, [setUser, setFollowersList,setFollowingList]);
+  
   return (
     <>
       <Flex>
@@ -94,13 +113,13 @@ function FollowList() {
               </Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="following">
-              {listFollow.map((x) => {
+              {following?.map((x) => {
                 return (
-                  <Flex gap={3} mx={"10"} mt={5}>
-                    <Link to="/" style={{ textDecoration: "none" }}>
+                  <Flex gap={3} mx={"10"} mt={5}  alignItems="center" justifyContent="space-between">
+                    <Link to={`/profile/${x.username}`} style={{ textDecoration: "none" }}>
                       <Flex gap={3}>
                         <img
-                          src={data_img}
+                          src={x.avatar ? x.avatar : data_img}
                           style={{
                             borderRadius: "100%",
                             width: "40px",
@@ -110,34 +129,28 @@ function FollowList() {
                         />
                         <Flex flexDirection={"column"}>
                           <Text color={"white"} height={"15%"}>
-                            {x.name}{" "}
+                            {x.fullName}{" "}
                           </Text>
                           <Text color={"#8a8986"}>{x.username}</Text>
                         </Flex>
                       </Flex>
                     </Link>
-                    <Flex justifyContent={"end"} width={"70%"}>
+                    <Flex justifyContent={"flex-end"} alignItems="center">
                       {" "}
-                      <Button
-                        background={"none"}
-                        borderRadius={"xl"}
-                        borderColor={"white"}
-                      >
-                        Follow
-                      </Button>{" "}
+                      {user && (<FollowButton userId={x.id} currentUserId={user.id}/>)}
                     </Flex>
                   </Flex>
                 );
               })}
             </Tabs.Content>
             <Tabs.Content value="followers">
-              {listFollow.map((x) => {
+              {followers?.map((x) => {
                 return (
-                  <Flex gap={3} mx={"10"} mt={5}>
-                    <Link to="/" style={{ textDecoration: "none" }}>
+                  <Flex gap={3} mx={"10"} mt={5} alignItems="center" justifyContent="space-between">
+                    <Link to={`/profile/${x.username}`} style={{ textDecoration: "none" }}>
                       <Flex gap={3}>
                         <img
-                          src={data_img}
+                          src={x.avatar ? x.avatar : data_img}
                           style={{
                             borderRadius: "100%",
                             width: "40px",
@@ -147,21 +160,15 @@ function FollowList() {
                         />
                         <Flex flexDirection={"column"}>
                           <Text color={"white"} height={"15%"}>
-                            {x.name}{" "}
+                            {x.fullName}{" "}
                           </Text>
                           <Text color={"#8a8986"}>{x.username}</Text>
                         </Flex>
                       </Flex>
                     </Link>
-                    <Flex justifyContent={"end"} width={"70%"}>
+                    <Flex justifyContent={"flex-end"} alignItems="center">
                       {" "}
-                      <Button
-                        background={"none"}
-                        borderRadius={"xl"}
-                        borderColor={"white"}
-                      >
-                        Follow
-                      </Button>{" "}
+                      {user && (<FollowButton userId={x.id} currentUserId={user.id}/>)}
                     </Flex>
                   </Flex>
                 );

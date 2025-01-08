@@ -19,9 +19,9 @@ import data_img from "../assets/images.jpeg";
 import PostList from "./postlist";
 import { FaUpload, FaImage } from "react-icons/fa";
 import { useForm } from "react-hook-form";
-import { fetchThreads, Thread } from "@/api/fetchallthread";
+import { fetchThreads, Thread } from "@/features/fetchallthread";
 import { z } from "zod";
-import { createThread } from "@/api/createthread";
+import { createThread } from "@/features/createthread";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   DialogBody,
@@ -36,8 +36,8 @@ import {
 } from "@/components/ui/dialog";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useEffect, useState } from "react";
-import { updateThread } from "@/api/updateThread";
-import { fetchThreadsbyId } from "@/api/threadbyid";
+import { updateThread } from "@/features/updateThread";
+import { fetchThreadsbyId } from "@/features/threadbyid";
 interface EditThreadProps {
   threadId: number;
 }

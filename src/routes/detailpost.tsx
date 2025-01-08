@@ -19,15 +19,15 @@ import SuggestedFollow from "@/components/suggestedfollow";
 import { useParams } from "react-router-dom";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useState, useEffect } from "react";
-import { fetchThreadsbyId } from "@/api/threadbyid";
+import { fetchThreadsbyId } from "@/features/threadbyid";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
-import { Thread } from "@/api/fetchallthread";
-import { Comment, fetchComment } from "@/api/getcomment";
+import { Thread } from "@/features/fetchallthread";
+import { Comment, fetchComment } from "@/features/getcomment";
 
-import { addReply } from "@/api/addreply";
+import { addReply } from "@/features/addreply";
 import { z } from "zod";
 import { FaUpload, FaImage } from "react-icons/fa";
-import { User, currentUser } from "@/api/currentUser";
+import { User, currentUser } from "@/features/currentUser";
 import LikeButton from "@/components/LikeButton";
 import EditThread from "@/components/updatethreaddialog";
 import DeleteThread from "@/components/deletethread";
@@ -207,13 +207,16 @@ function DetailPost() {
 
                   <Text color={"white"}>{thread?.content}</Text>
                   {thread?.image && (
-                    // <img
-                    //   src={thread?.image}
-                    //   style={{ display: "block" }}
-                    //   height={"200px"}
-                    //   width={"100%"}
-                    // />
-                    <ImageDetail id={thread.id} img_src={thread.image}/>
+                    <Link to={`/imagedetail/${thread.id}`}>
+                      <img
+                      src={thread?.image}
+                      style={{ display: "block" }}
+                      height={"200px"}
+                      width={"100%"}
+                    />
+                    </Link>
+                    
+                    
                   )}
 
                   <Flex gap={3} mt={3}>

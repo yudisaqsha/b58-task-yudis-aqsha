@@ -1,5 +1,6 @@
 import {
   Input,
+  Image,
   Container,
   Text,
   Flex,
@@ -10,8 +11,8 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { currentUser } from "@/api/currentUser";
-import { updateUser } from "@/api/updateuser";
+import { currentUser } from "@/features/currentUser";
+import { updateUser } from "@/features/updateuser";
 import { Button } from "@/components/ui/button";
 import {
   DialogBody,
@@ -27,7 +28,6 @@ import {
 import EditProfile from "./editprofile";
 import useAuthStore from "../hooks/newAuthStore";
 import data_img from "../assets/images.jpeg";
-
 
 function ProfileSidebar() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -138,13 +138,24 @@ function ProfileSidebar() {
       </h5>
 
       <Box position={"relative"} mt={5}>
-        <Box
-          borderRadius={10}
-          height={"100px"}
-          width={"90%"}
-          m={"auto"}
-          background={user?.coverPic ? user.coverPic : "white"}
-        ></Box>
+        {user?.coverPic ? (
+          <Image
+            src={user.coverPic}
+            borderRadius={10}
+            height={"100px"}
+            width={"90%"}
+            m={"auto"}
+          />
+        ) : (
+          <Box
+            borderRadius={10}
+            height={"100px"}
+            width={"90%"}
+            m={"auto"}
+            background={"white"}
+          ></Box>
+        )}
+
         <Box
           borderRadius={"100%"}
           borderWidth={2}

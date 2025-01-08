@@ -12,6 +12,7 @@ import FollowList from "./routes/followlist";
 import Search from "./routes/search";
 import DetailPost from "./routes/detailpost";
 import useAuthStore from "./hooks/useAuthStore";
+import ImageDetail from "./components/imagedetail";
 import { useEffect } from "react";
 import { AuthProvider } from "./hooks/authcontext";
 import PrivateRoute from "./components/privateroute";
@@ -33,6 +34,7 @@ function App() {
           <Route path="/profile/:username" element={<Profile /> } />
           <Route path="/detailpost/:id" element={ <DetailPost /> } />
           <Route path="/search" element={<Search />} />
+          <Route path="/imagedetail/:id" element={<ImageDetail/>}/>
           {/* <Route path="/dashboard" element={<Dashboard />} /> */}
         </Route>
         {/* <Route path="/login" element={<Login />} />

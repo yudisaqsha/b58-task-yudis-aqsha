@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Thread } from '../api/fetchallthread';
+import { Thread } from './fetchallthread';
 
 export const createThread = async (token:string,formData: FormData): Promise<{ message: string, thread: Thread }> => {
     try {

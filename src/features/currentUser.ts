@@ -7,6 +7,7 @@ export interface User {
     bio: string;
     avatar: string;
     coverPic: string;
+   
     _count: {
       followers: number;
       following: number;

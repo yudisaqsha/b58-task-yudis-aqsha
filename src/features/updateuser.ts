@@ -1,4 +1,4 @@
-import { User } from '../api/currentUser';  
+import { User } from './currentUser';  
 import axios from 'axios';
 
 export const updateUser = async (token:string,formData: FormData): Promise<{ message: string, user: User }> => {

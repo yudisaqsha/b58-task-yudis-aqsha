@@ -15,20 +15,41 @@ import { Link } from "react-router-dom";
 import Sidebar from "../components/sidebar";
 import { useState, useEffect } from "react";
 import debounce from "lodash/debounce";
-import { searchBar } from "@/api/searchuser";
-import { User } from "@/api/currentUser";
+import { searchBar } from "@/features/searchuser";
 import ProfileSidebar from "../components/profilesidebar";
 import useAuthStore from "@/hooks/newAuthStore";
 import PostList from "@/components/postlist";
 import SuggestedFollow from "@/components/suggestedfollow";
 import { LuCheckSquare, LuFolder, LuUser } from "react-icons/lu";
-
+import FollowButton from "@/components/followbutton";
+import { User, currentUser } from "@/features/currentUser";
 function Search() {
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuthStore();
+  const [loggedIn, setLoggedin] = useState<User>()
+  useEffect(() => {
+      const getUserData = async () => {
+        if (token ) {
+          try {
+            
+            const loginuser = await currentUser(token);
+            
+            setLoggedin(loginuser);
+            console.log(loginuser);
+          } catch (err) {
+            setError("User not found or error occurred");
+            console.error("Error fetching user data:", err);
+          }
+        }
+      };
+  
+      if (token) {
+        getUserData();
+      }
+    }, [token, setLoggedin]);
   const debouncedSearch = debounce(async (username: string) => {
     if (!username.trim()) {
       setUsers([]);
@@ -114,7 +135,7 @@ function Search() {
           </form>
           {users.map((x) => {
             return (
-              <Flex gap={3} ml={"10"} mt={5}>
+              <Flex width={"80%"} gap={2} mx={"auto"} mt={5} alignItems="center" justifyContent="space-between">
                 <Link to={`/profile/${x.username}`} style={{ textDecoration: "none" }}>
                   <Flex gap={3}>
                     <img
@@ -134,15 +155,19 @@ function Search() {
                     </Flex>
                   </Flex>
                 </Link>
-                <Flex justifyContent={"end"} width={"70%"}>
+                <Flex justifyContent={"flex-end"} alignItems="center">
                   {" "}
-                  <Button
+                  {/* <Button
                     background={"none"}
                     borderRadius={"xl"}
                     borderColor={"white"}
                   >
                     Follow
-                  </Button>{" "}
+                  </Button>{" "} */}
+                  {loggedIn && (
+                    <FollowButton userId={x.id} currentUserId={loggedIn.id}></FollowButton>
+                  )}
+                  
                 </Flex>
               </Flex>
             );

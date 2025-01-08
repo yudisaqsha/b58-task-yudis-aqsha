@@ -13,8 +13,8 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 
-import { fetchProfileThreads } from "@/api/profilethread";
-import { useNavigate, useLocation } from "react-router-dom";
+import { fetchProfileThreads } from "@/features/profilethread";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import useAuthStore from "@/hooks/newAuthStore";
 
 import { useEffect, useState } from "react";
@@ -51,7 +51,7 @@ function ProfileGallery({ username }: ProfileHeaderProps) {
 
     loadThreads();
   }, [setAllThread, token, location]);
- 
+
   return (
     <>
       {loading ? (
@@ -72,29 +72,28 @@ function ProfileGallery({ username }: ProfileHeaderProps) {
           {threads.map((x) => (
             <>
               {x.image && (
-                <Box
-                  key={x.id}
-                  position="relative"
-                  overflow="hidden"
-                  borderRadius="10px"
-                  boxShadow="md"
-                  height={"250px"}
-                  transition="transform 0.3s ease"
+                <Link to={`/imagedetail/${x.id}`}>
+                  <Box
+                    key={x.id}
+                    position="relative"
+                    overflow="hidden"
+                    borderRadius="10px"
+                    boxShadow="md"
+                    height={"250px"}
+                    transition="transform 0.3s ease"
                     _hover={{
                       transform: "scale(1.05)",
                     }}
-                >
-                  
-                  <Image
-                    src={x.image}
-                    alt={`Gallery Image ${x.id}`}
-                    width="100%"
-                    height="100%"
-                    borderRadius="10px"
-                    
-                  />
-                 
-                </Box>
+                  >
+                    <Image
+                      src={x.image}
+                      alt={`Gallery Image ${x.id}`}
+                      width="100%"
+                      height="100%"
+                      borderRadius="10px"
+                    />
+                  </Box>
+                </Link>
               )}
             </>
           ))}

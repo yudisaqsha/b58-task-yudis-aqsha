@@ -2,8 +2,8 @@ import {
     Button,
   } from "@chakra-ui/react";
   import { useEffect, useState } from "react";
-  import { deleteReply } from "@/api/deletereply";
-  import { fetchComment } from "@/api/getcomment";
+  import { deleteReply } from "@/features/deletereply";
+  import { fetchComment } from "@/features/getcomment";
   import useAuthStore from "@/hooks/newAuthStore";
   import { useNavigate } from "react-router-dom";
   interface DeleteThreadProps {

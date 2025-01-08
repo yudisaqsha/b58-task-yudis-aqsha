@@ -6,13 +6,14 @@ import {
   Stack,
   Box,
   Color,
+  Image,
   Textarea,
   Spinner,
   useDisclosure,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { currentUser } from "@/api/currentUser";
-import { updateUser } from "@/api/updateuser";
+import { currentUser } from "@/features/currentUser";
+import { updateUser } from "@/features/updateuser";
 import { Button } from "@/components/ui/button";
 import {
   DialogBody,
@@ -166,19 +167,32 @@ function EditProfile() {
           </DialogHeader>
           <DialogBody>
             <Box position={"relative"} mt={5}>
-              <Box
-                borderRadius={10}
-                height={"100px"}
-                width={"90%"}
-                m={"auto"}
-                background={
-                  coverPicPreview
-                    ? coverPicPreview
-                    : user?.coverPic
-                      ? user.coverPic
-                      : "white"
-                }
-              ></Box>
+              {coverPicPreview ? (
+                <Image
+                  src={coverPicPreview}
+                  borderRadius={10}
+                  height={"100px"}
+                  width={"90%"}
+                  m={"auto"}
+                />
+              ) : user?.coverPic ? (
+                <Image
+                  src={user.coverPic}
+                  borderRadius={10}
+                  height={"100px"}
+                  width={"90%"}
+                  m={"auto"}
+                />
+              ) : (
+                <Box
+                  borderRadius={10}
+                  height={"100px"}
+                  width={"90%"}
+                  m={"auto"}
+                  background={"white"}
+                ></Box>
+              )}
+
               <Box
                 borderRadius={"100%"}
                 borderWidth={2}

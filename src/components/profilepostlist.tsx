@@ -11,7 +11,7 @@ import {
     Image,
     Spinner
   } from "@chakra-ui/react";
-  import { fetchProfileThreads } from "@/api/profilethread";
+  import { fetchProfileThreads } from "@/features/profilethread";
   import { Link, useNavigate,useLocation } from "react-router-dom";
   import useAuthStore from "@/hooks/newAuthStore";
   import data_img from "../assets/images.jpeg";

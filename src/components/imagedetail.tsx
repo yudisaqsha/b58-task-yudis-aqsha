@@ -12,20 +12,20 @@ import {
   HStack,
   Image,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import data_img from "../assets/images.jpeg";
-import { Comment, fetchComment } from "@/api/getcomment";
+import { Comment, fetchComment } from "@/features/getcomment";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useState, useEffect } from "react";
-import { fetchThreadsbyId } from "@/api/threadbyid";
+import { fetchThreadsbyId } from "@/features/threadbyid";
 import { FaUpload, FaImage } from "react-icons/fa";
-import { User, currentUser } from "@/api/currentUser";
+import { User, currentUser } from "@/features/currentUser";
 import LikeButton from "@/components/LikeButton";
 import EditThread from "@/components/updatethreaddialog";
 import DeleteThread from "@/components/deletethread";
 import EditReply from "@/components/updateReplyDialog";
 import DeleteReply from "@/components/deletereply";
-import { addReply } from "@/api/addreply";
+import { addReply } from "@/features/addreply";
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -35,11 +35,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-interface ImageProps {
-  id: number;
-  img_src:string
-}
-function ImageDetail({ id, img_src }: ImageProps) {
+
+function ImageDetail() {
+  const {id} = useParams()
   const { token, thread, setThread, comments, setComments, user, setUser} = useAuthStore(
     (state) => state,
   );
@@ -135,24 +133,24 @@ function ImageDetail({ id, img_src }: ImageProps) {
           <Spinner size="xl" color="white" />
         </Box>
       )}
-      <DialogRoot
+      {/* <DialogRoot
         size="cover"
         placement="center"
         motionPreset="slide-in-bottom"
       >
         <DialogTrigger asChild>
-          <Image src={img_src} width={"100%"} height={"100%"} key={id}/>
+          <Image src={thread?.image} width={"100%"} height={"100%"} key={id}/>
         </DialogTrigger>
         <DialogContent background={"#1d1d1d"} height={"auto"}>
           <DialogHeader>
             <DialogCloseTrigger />
           </DialogHeader>
-          <DialogBody>
-            <Flex gap={0}>
+          <DialogBody> */}
+            <Flex gap={0}justifyContent={"center"} alignContent={"center"}>
               <Image
                 src={thread?.image}
                 width={"100%"}
-                m={"auto"}
+                my={"100px"}
                 height={"auto"}
               />
               <Stack
@@ -397,9 +395,9 @@ function ImageDetail({ id, img_src }: ImageProps) {
                 </Container>
               </Stack>
             </Flex>
-          </DialogBody>
+          {/* </DialogBody>
         </DialogContent>
-      </DialogRoot>
+      </DialogRoot> */}
     </>
   );
 }

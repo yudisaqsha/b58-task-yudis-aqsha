@@ -17,7 +17,7 @@ import { useState, useEffect } from "react";
 import data_img from "../assets/images.jpeg";
 import { useLikeStore } from "../hooks/likebutton";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
-import { Thread,fetchThreads } from "@/api/fetchallthread";
+import { Thread,fetchThreads } from "@/features/fetchallthread";
 
 import LikeButton from "./LikeButton";
 function PostList() {

@@ -20,13 +20,13 @@ import ProfileHeader from "../components/profileheader";
 import PostList from "@/components/postlist";
 import PostProfile from "@/components/profilepostlist";
 import SuggestedFollow from "@/components/suggestedfollow";
-import { profilePage } from "@/api/profilepageuser";
-import { User, currentUser } from "@/api/currentUser";
+import { profilePage } from "@/features/profilepageuser";
+import { User, currentUser } from "@/features/currentUser";
 import { useState, useEffect } from "react";
 import { LuCheckSquare, LuFolder, LuUser } from "react-icons/lu";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { createThread } from "@/api/createthread";
+import { createThread } from "@/features/createthread";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FaUpload, FaImage } from "react-icons/fa";
 import {

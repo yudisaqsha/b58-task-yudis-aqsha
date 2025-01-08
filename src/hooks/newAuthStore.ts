@@ -2,13 +2,14 @@ import {create} from "zustand";
 import {jwtDecode} from "jwt-decode";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { User } from "@/api/currentUser";
-import { Thread } from "@/api/fetchallthread";
-import { likeThread } from "@/api/likefunction";
-import { followFunction } from "@/api/followfunction";
-import { fetchFollowing } from "@/api/followingcheck";
-import { getSuggested } from "@/api/suggesteduser";
-import { Comment } from "@/api/getcomment";
+import { User } from "@/features/currentUser";
+import { Thread } from "@/features/fetchallthread";
+import { likeThread } from "@/features/likefunction";
+import { followFunction } from "@/features/followfunction";
+import { fetchFollowing } from "@/features/fetchfollowing";
+import { getSuggested } from "@/features/suggesteduser";
+import { Comment } from "@/features/getcomment";
+import { string } from "zod";
 interface MyState {
   user:User|null
   loggedIn : User |null
@@ -27,65 +28,40 @@ interface MyState {
   setComments:(comment:Comment[]) => void
 }
 interface FollowState {
-  followedUser: number[];
-  suggestedUsers: User[];
-  isLoading: boolean;
-  error: string | null;
-  fetchFollowed: (token:string) => Promise<void>;
-  fetchSuggestedUsers: (token:string) => Promise<void>;
-  toggleFollow: (token:string,userId: number) => Promise<void>;
-  
+  following: number[]; // List of user IDs that the current user is following
+  getFollowing: (token: string, id: number) => Promise<void>;
+  toggleFollow: (token: string, userId: number) => Promise<void>;
 }
 
-export const useFollowStore = create<FollowState>((set, get) => ({
-  followedUser: [],
-  suggestedUsers : [],
-  isLoading: false,
-  error: null,
-  fetchFollowed: async (token:string) => {
+export const useFollowStore = create<FollowState>((set) => ({
+  following: [],
+
+  // Fetch following users
+  getFollowing: async (token: string, id: number) => {
     try {
-      set({ isLoading: true });
-      const followedIds = await fetchFollowing(token);
-      set({ followedUser: followedIds, error: null });
+      const result = await fetchFollowing(token, id); // Call your API function to fetch following data
+      set({ following: result.following });
     } catch (error) {
-      set({ error: 'Failed to fetch followed users' });
-    } finally {
-      set({ isLoading: false });
+      console.error('Error fetching following:', error);
     }
   },
 
-  fetchSuggestedUsers: async (token:string) => {
+  // Toggle follow/unfollow
+  toggleFollow: async (token: string, userId: number) => {
     try {
-      set({ isLoading: true });
-      const  users  = await getSuggested(token);
-      set({ suggestedUsers: users, error: null });
-    } catch (error) {
-      set({ error: 'Failed to fetch suggested users' });
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-
-  toggleFollow: async (token:string,userId: number) => {
-    try {
-      set({ isLoading: true });
-      await followFunction(token, userId);
+      const result = await followFunction(token, userId); // Call your API function for follow/unfollow
       set((state) => {
-        const followedUsers = state.followedUser;
-        const newFollowedUsers = followedUsers.includes(userId)
-          ? followedUsers.filter(id => id !== userId)
-          : [...followedUsers, userId];
-          
-        return {
-          followedUser: newFollowedUsers,
-          isLoading: false,
-          error: null
-        };
+        const newFollowing = state.following.includes(userId)
+          ? state.following.filter((id) => id !== userId)
+          : [...state.following, userId];
+
+        return { following: newFollowing };
       });
+
+      const { getFollowing } = useFollowStore.getState(); // Access the store's getFollowing method directly
+      await getFollowing(token, userId);
     } catch (error) {
-      set({ error: 'Failed to toggle follow' });
-    } finally {
-      set({ isLoading: false });
+      console.error('Error toggling follow:', error);
     }
   },
 }));

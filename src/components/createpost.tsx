@@ -14,7 +14,7 @@ import { FaUpload } from 'react-icons/fa';
 import { useForm } from "react-hook-form";
 import useAuthStore from "@/hooks/newAuthStore";
 import { useState } from "react";
-import { createThread } from "@/api/createthread";
+import { createThread } from "@/features/createthread";
 import data_img from "../assets/images.jpeg";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";

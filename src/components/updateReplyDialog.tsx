@@ -14,9 +14,9 @@ import {
   } from "@chakra-ui/react";
   import { FaUpload, FaImage } from "react-icons/fa";
   import { useEffect, useState } from "react";
-  import { updateReply } from "@/api/updateReply";
-  import { fetchComment } from "@/api/getcomment";
-  import { fetchCommentbyId } from "@/api/getreplybyid";
+  import { updateReply } from "@/features/updateReply";
+  import { fetchComment } from "@/features/getcomment";
+  import { fetchCommentbyId } from "@/features/getreplybyid";
   import  useAuthStore  from "@/hooks/newAuthStore";
   import { DialogRoot, DialogTrigger, DialogContent, DialogHeader, DialogBody, DialogFooter, DialogActionTrigger, DialogCloseTrigger, DialogTitle } from "@/components/ui/dialog";
   import data_img from "@/assets/images.jpeg"

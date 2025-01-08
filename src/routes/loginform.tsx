@@ -9,7 +9,7 @@ const schema = z.object({
   username: z.string().min(5, "username is required"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
-import { loginUser } from "@/api/loginapi";
+import { loginUser } from "@/features/loginapi";
 type FormData = z.infer<typeof schema>;
 function Login() {
   const {
