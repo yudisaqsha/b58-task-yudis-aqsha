@@ -132,7 +132,7 @@ import {
           </DialogTrigger>
           <DialogContent background={"#1d1d1d"} color={"white"}>
             <DialogHeader>
-              <DialogTitle>Update</DialogTitle>
+              <DialogTitle>Update Reply</DialogTitle>
             </DialogHeader>
             <DialogBody>
               <Container
@@ -146,7 +146,8 @@ import {
                    
                     <Flex direction={"column"}>
                       <Textarea
-                        width={"30vh"}
+                        width={"50vh"}
+                        mx={"auto"}
                         border={"none"}
                         borderRadius={"lg"}
                         id="content"
@@ -183,15 +184,7 @@ import {
                     </Flex>
                     <Flex direction={"column"} gap={"2"}>
                       
-                        <label htmlFor="image" className="upload-label">
-                          <input
-                            type="file"
-                            id="image"
-                            accept="image/png, image/jpeg"
-                            onChange={handleImageChange}
-                          />
-                          <FaImage size={30} color="green" />
-                        </label>
+                        
                      
                     </Flex>
                   </Flex>
@@ -200,6 +193,16 @@ import {
               </Container>
             </DialogBody>
             <DialogFooter>
+            <label htmlFor="imageeditreply" className="upload-label">
+                          <input
+                            type="file"
+                            id="imageeditreply"
+                            accept="image/png, image/jpeg"
+                            style={{display:"none"}}
+                            onChange={handleImageChange}
+                          />
+                          <FaImage size={30} color="green" />
+                        </label>
               <DialogActionTrigger marginRight={"10%"}>
                 <Button
                   backgroundColor={"green"}

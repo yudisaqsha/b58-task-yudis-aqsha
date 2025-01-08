@@ -23,7 +23,7 @@ import { fetchThreadsbyId } from "@/features/threadbyid";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { Thread } from "@/features/fetchallthread";
 import { Comment, fetchComment } from "@/features/getcomment";
-
+import FollowButton from "@/components/followbutton";
 import { addReply } from "@/features/addreply";
 import { z } from "zod";
 import { FaUpload, FaImage } from "react-icons/fa";
@@ -36,14 +36,14 @@ import DeleteReply from "@/components/deletereply";
 import ImageDetail from "@/components/imagedetail";
 function DetailPost() {
   const { id } = useParams();
-  const { token   } = useAuthStore(
+  const { token ,comments, setComments  } = useAuthStore(
     (state) => state,
   );
   const [error, setError] = useState("");
   // const [commentText, setCommentText] = useState('');
   const [content, setContent] = useState("");
   const [thread, setThread] = useState<Thread>()
-  const [comments, setComments] = useState<Comment[]>()
+  
   const [user, setUser] = useState<User>();
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -202,9 +202,10 @@ function DetailPost() {
                         {thread?.author.fullName}
                       </Text>
                       <Text color={"#3F3F3F"}>@{thread?.author.username}</Text>
+                      
                     </Flex>
                   </Link>
-
+                  
                   <Text color={"white"}>{thread?.content}</Text>
                   {thread?.image && (
                     <Link to={`/imagedetail/${thread.id}`}>
@@ -259,6 +260,8 @@ function DetailPost() {
                     </Button>
                   </Flex>
                 </Flex>
+                {user && thread.author.id !== user.id && (<><Box ml={4}><FollowButton userId={thread.author.id} currentUserId={user.id}/></Box></>)}
+
                 {thread.author.id === user?.id && (
                   <Flex justifyContent={"end"} width={"60%"}>
                     <EditThread threadId={Number(id)} />

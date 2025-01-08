@@ -28,42 +28,23 @@ interface MyState {
   setComments:(comment:Comment[]) => void
 }
 interface FollowState {
-  following: number[]; // List of user IDs that the current user is following
-  getFollowing: (token: string, id: number) => Promise<void>;
-  toggleFollow: (token: string, userId: number) => Promise<void>;
+  follows: { [key: number]: boolean }; // Track follow status by userId
+  toggleFollow: (userId: number) => void;
+  setFollowStatus: (userId: number, status: boolean) => void;
 }
 
 export const useFollowStore = create<FollowState>((set) => ({
-  following: [],
-
-  // Fetch following users
-  getFollowing: async (token: string, id: number) => {
-    try {
-      const result = await fetchFollowing(token, id); // Call your API function to fetch following data
-      set({ following: result.following });
-    } catch (error) {
-      console.error('Error fetching following:', error);
-    }
-  },
-
-  // Toggle follow/unfollow
-  toggleFollow: async (token: string, userId: number) => {
-    try {
-      const result = await followFunction(token, userId); // Call your API function for follow/unfollow
-      set((state) => {
-        const newFollowing = state.following.includes(userId)
-          ? state.following.filter((id) => id !== userId)
-          : [...state.following, userId];
-
-        return { following: newFollowing };
-      });
-
-      const { getFollowing } = useFollowStore.getState(); // Access the store's getFollowing method directly
-      await getFollowing(token, userId);
-    } catch (error) {
-      console.error('Error toggling follow:', error);
-    }
-  },
+  follows: {}, // Initially, no user is followed
+  toggleFollow: (userId) =>
+    set((state) => {
+      const newFollows = { ...state.follows };
+      newFollows[userId] = !newFollows[userId]; // Toggle follow status
+      return { follows: newFollows };
+    }),
+  setFollowStatus: (userId, status) =>
+    set((state) => ({
+      follows: { ...state.follows, [userId]: status },
+    })),
 }));
 interface LikeState {
   likedThreads: Record<number, boolean>;

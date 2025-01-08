@@ -1,28 +1,18 @@
 import {
-  Input,
+  
   Container,
-  Text,
+ 
   Button,
   Flex,
-  Stack,
+  
   Box,
-  Color,
-  Image,
-  useDisclosure,
+  
   Spinner,
   Textarea,
 } from "@chakra-ui/react";
-import { CreatePost } from "./createpost";
-import { Link } from "react-router-dom";
-// const imageContext = require.context('../assets', false, /\.(jpg|jpeg|png)$/);
-import data_img from "../assets/images.jpeg";
-import PostList from "./postlist";
-import { FaUpload, FaImage } from "react-icons/fa";
-import { useForm } from "react-hook-form";
-import { fetchThreads, Thread } from "@/features/fetchallthread";
-import { z } from "zod";
-import { createThread } from "@/features/createthread";
-import { zodResolver } from "@hookform/resolvers/zod";
+
+import { FaImage } from "react-icons/fa";
+
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -49,7 +39,7 @@ function EditThread({ threadId }: EditThreadProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [errors, setErrors] = useState<string | null>(null);
+ 
 
   const handleContentChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>,
@@ -142,7 +132,7 @@ function EditThread({ threadId }: EditThreadProps) {
         </DialogTrigger>
         <DialogContent background={"#1d1d1d"} color={"white"}>
           <DialogHeader>
-            <DialogTitle>Update</DialogTitle>
+            <DialogTitle>Update Thread</DialogTitle>
           </DialogHeader>
           <DialogBody>
             <Container
@@ -159,7 +149,8 @@ function EditThread({ threadId }: EditThreadProps) {
                 <Flex gap={5}>
                   <Flex direction={"column"}>
                     <Textarea
-                      width={"30vh"}
+                      width={"50vh"}
+                      mx={"auto"}
                       border={"none"}
                       borderRadius={"lg"}
                       id="content"
@@ -202,10 +193,10 @@ function EditThread({ threadId }: EditThreadProps) {
           </DialogBody>
           <DialogFooter>
             <div>
-              <label htmlFor="image" className="upload-label">
+              <label htmlFor="imageeditthread" className="upload-label">
                 <input
                   type="file"
-                  id="image"
+                  id="imageeditthread"
                   accept="image/png, image/jpeg"
                   style={{ display: "none" }}
                   onChange={handleImageChange}

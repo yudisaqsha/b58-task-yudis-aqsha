@@ -146,7 +146,7 @@ function ImageDetail() {
             <DialogCloseTrigger />
           </DialogHeader>
           <DialogBody> */}
-            <Flex gap={0}justifyContent={"center"} alignContent={"center"}>
+            <Flex mx={10} gap={0}justifyContent={"center"} alignContent={"center"}>
               <Image
                 src={thread?.image}
                 width={"100%"}

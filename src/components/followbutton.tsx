@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@chakra-ui/react";
-import useAuthStore from "../hooks/newAuthStore";
+import useAuthStore, {useFollowStore} from "../hooks/newAuthStore";
 import { followFunction } from "@/features/followfunction";
 import { checkFollow } from "@/features/checkfollow";
 interface FollowButtonProps {
@@ -13,16 +13,17 @@ const FollowButton: React.FC<FollowButtonProps> = ({
   currentUserId,
 }) => {
   const { token } = useAuthStore();
-  const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
+  const { follows, toggleFollow, setFollowStatus } = useFollowStore(); // Access Zustand store
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
   useEffect(() => {
     if (token) {
       const fetchFollowStatus = async () => {
         try {
           console.log(currentUserId)
           const status = await checkFollow(token, userId, currentUserId);
-          setIsFollowing(status);
+          setFollowStatus(userId,status);
           console.log(status)
         } catch (err) {
           setError("User not found or error occurred");
@@ -33,7 +34,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({
       fetchFollowStatus();
     }
   }, [token, userId, currentUserId]);
-
+ 
   const handleToggleFollow = async () => {
     setLoading(true);
     setError(null);
@@ -42,8 +43,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({
         await followFunction(token, userId);
 
         
-        setIsFollowing((prevState) => !prevState);
-
+        toggleFollow(userId)
         
       } catch (err) {
         setError("User not found or error occurred");
@@ -65,7 +65,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({
           borderRadius={"xl"}
           borderColor={"white"}
         >
-          {loading ? "Processing..." : isFollowing ? "Unfollow" : "Follow"}
+          {loading ? "Processing..." :  follows[userId] ? "Unfollow" : "Follow"}
         </Button>
       )}
 

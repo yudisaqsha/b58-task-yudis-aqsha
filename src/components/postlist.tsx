@@ -18,24 +18,19 @@ import data_img from "../assets/images.jpeg";
 import { useLikeStore } from "../hooks/likebutton";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { Thread,fetchThreads } from "@/features/fetchallthread";
-
+import FollowButton from "./followbutton";
 import LikeButton from "./LikeButton";
+import { User, currentUser } from "@/features/currentUser";
 function PostList() {
   const {threads, setAllThread, token } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
+  const [loggedin, setLoggedin] = useState<User>()
   
   // const [likedThreads, setLikedThreads] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   
   // const { posts, likedPosts, likePost } = useAuthStore((state) => state);
-  const navigate = useNavigate();
-  const handleActionComplete = async () => {
-    if(!token){
-      return
-    }
-    const response = await fetchThreads(token);
-    setAllThread(response);
-  };
+ 
   useEffect(() => {
     const loadThreads = async () => {
       if (!token) {
@@ -48,6 +43,8 @@ function PostList() {
 
       try {
         const fetchedThreads = await fetchThreads(token);  
+        const loginuser = await currentUser(token)
+        setLoggedin(loginuser)
         setAllThread(fetchedThreads);
         console.log(fetchedThreads)
       } catch (err) {
@@ -58,7 +55,7 @@ function PostList() {
     };
 
     loadThreads(); 
-  }, [setAllThread, token]);
+  }, [setAllThread, setLoggedin,token]);
   
 
   
@@ -93,6 +90,7 @@ function PostList() {
                       {data.author.fullName}
                     </Text>
                     <Text color={"#3F3F3F"}>@{data.author.username}</Text>
+                    {loggedin && data.author.id !== loggedin.id && (<><Box ml={4}><FollowButton userId={data.author.id} currentUserId={loggedin.id}/></Box></>)}
                   </Flex>
                 </Link>
                 <Link
